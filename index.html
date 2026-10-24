@@ -660,7 +660,7 @@
     }
 
     function promptMentorAccess(autoPass = false) {
-      const pass = autoPass ? '0259' : prompt('Enter Mentor Admin PIN (Default is ***9):');
+      const pass = autoPass ? '0259' : prompt('Enter Mentor Admin PIN:');
       if (pass === '0259' || pass === 'manuu2026') {
         isMentorAdmin = true;
         document.getElementById('roleHeaderBadge').textContent = '🛡️ Mentor Admin Mode';
@@ -715,7 +715,7 @@
         'M06': { baseGS: 3.5, baseOpt: 2.5, mainsH: 1.0, mainsQ: 4, prelH: 1.0, prelM: 30, csat: 0.0 },
         'M07': { baseGS: 3.5, baseOpt: 2.0, mainsH: 1.0, mainsQ: 3, prelH: 1.0, prelM: 25, csat: 0.5 },
         'M08': { baseGS: 4.0, baseOpt: 0.0, mainsH: 1.5, mainsQ: 5, prelH: 1.5, prelM: 45, csat: 1.0 },
-        'M09': { baseGS: 3.0, baseOpt: 2.0, mainsH: 1.0, mainsQ: 3, prelH: 1.0, prelM: 30, csat: 0.5 },
+        'M09': { baseGS: 3.0, baseOpt: 2.0, mainsH: 1.0, mainsQ: 3, prelH: 1.0, prelimsMCQs: 30, csat: 0.5 },
         'M10': { baseGS: 3.0, baseOpt: 2.0, mainsH: 0.5, mainsQ: 2, prelH: 1.0, prelM: 30, csat: 0.5 }
       };
 
@@ -746,7 +746,7 @@
       if (rerender) renderAll();
     }
 
-    function saveLogsToStorage() {
+    function saveLogsToStorage(pushRemote = true) {
       localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(allLogs));
     }
 
