@@ -660,8 +660,8 @@
     }
 
     function promptMentorAccess(autoPass = false) {
-      const pass = autoPass ? '9999' : prompt('Enter Mentor Admin PIN (Default is 9999):');
-      if (pass === '9999' || pass === 'manuu2026') {
+      const pass = autoPass ? '0259' : prompt('Enter Mentor Admin PIN (Default is 9999):');
+      if (pass === '0259' || pass === 'manuu2026') {
         isMentorAdmin = true;
         document.getElementById('roleHeaderBadge').textContent = '🛡️ Mentor Admin Mode';
         document.getElementById('roleHeaderBadge').className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
