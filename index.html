@@ -3,481 +3,205 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MANUU CSE Academy | Phase 2: Study Editor & Aspirational Delta Dashboard</title>
-  <!-- Load Tailwind CSS -->
+  <title>MANUU CSE Academy | Phase 3 Live Sync & Mentor Override Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Load FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f1f5f9;
-    }
-    /* Always show number spinners for quick desktop clicking */
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
     input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      opacity: 1;
-    }
-    /* Custom Matrix Input Styling */
+    input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
     .matrix-input {
       width: 58px;
       text-align: center;
       border: 1px solid #cbd5e1;
-      border-radius: 0.5rem;
-      padding: 5px 2px;
+      border-radius: 6px;
+      padding: 4px 2px;
       font-weight: 600;
-      font-size: 0.875rem;
-      color: #0f172a;
-      background-color: #ffffff;
+      font-size: 0.85rem;
       transition: all 0.15s ease;
     }
     .matrix-input:focus {
       outline: none;
       border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
       background-color: #eff6ff;
     }
-    /* Sub-field input for Mains Qs and Prelims MCQs */
+    .matrix-input:disabled, .sub-input:disabled {
+      background-color: #f1f5f9;
+      color: #64748b;
+      cursor: not-allowed;
+      border-color: #e2e8f0;
+    }
     .sub-input {
-      width: 52px;
+      width: 50px;
       text-align: center;
       border: 1px dashed #94a3b8;
-      border-radius: 0.375rem;
-      padding: 4px 2px;
+      border-radius: 4px;
+      padding: 2px;
       font-size: 0.75rem;
-      font-weight: 600;
       background-color: #f8fafc;
-      transition: all 0.15s ease;
     }
     .sub-input:focus {
       outline: none;
       border-color: #0d9488;
-      box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.18);
       background-color: #f0fdfa;
     }
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+    .pulse-dot {
+      animation: pulse-ring 2s infinite;
     }
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 3px;
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.9; }
+      50% { transform: scale(1.15); opacity: 0.4; }
+      100% { transform: scale(0.95); opacity: 0.9; }
     }
   </style>
 </head>
 <body class="text-slate-800 min-h-screen flex flex-col">
 
-  <!-- ==========================================
-       1. TOP NAVIGATION BAR
-       ========================================== -->
-  <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-30 border-b border-slate-800">
+  <!-- TOP NAVIGATION BAR -->
+  <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-      <!-- Brand Identity -->
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center font-extrabold text-lg text-slate-950 shadow-md">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-lg shadow">
           M
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-bold text-base sm:text-lg tracking-tight leading-none">MANUU CSE Academy</h1>
-            <span class="hidden sm:inline-block text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-              Phase 2 • Delta Analytics
+            <h1 class="font-bold text-base sm:text-lg leading-tight">MANUU CSE Academy</h1>
+            <span id="roleHeaderBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              🛡️ Mentor Admin Mode
             </span>
           </div>
-          <p class="text-xs text-slate-400 mt-0.5">UPSC Mentorship Tracker • MANUU Aspirational Cohort Framework</p>
+          <p class="text-xs text-slate-400">Mentor Cohort Tracker • Aspirational Batch Framework (Phase 3 Hybrid Sync)</p>
         </div>
       </div>
 
-      <!-- Date Picker & Action Toolbar -->
+      <!-- Date Picker, Sync Hub & Top Action Buttons -->
       <div class="flex flex-wrap items-center gap-2">
-        <!-- Date Selector with Prev/Next Day Quick Buttons -->
-        <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl p-1 text-sm">
-          <button onclick="shiftDate(-1)" title="Previous Day" class="px-2 py-1 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition">
-            <i class="fa-solid fa-chevron-left text-xs"></i>
-          </button>
-          <div class="flex items-center px-2">
-            <i class="fa-regular fa-calendar text-emerald-400 mr-2 text-xs"></i>
-            <input type="date" id="activeDate" class="bg-transparent text-white font-semibold focus:outline-none text-xs sm:text-sm cursor-pointer" />
-          </div>
-          <button onclick="shiftDate(1)" title="Next Day" class="px-2 py-1 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition">
-            <i class="fa-solid fa-chevron-right text-xs"></i>
-          </button>
+        <!-- Cloud & Sheet Status Indicator -->
+        <button onclick="openSyncModal()" id="syncStatusBtn" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition">
+          <span id="syncDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-dot"></span>
+          <span id="syncLabelText">Cloud & Sheet Hub</span>
+        </button>
+
+        <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm">
+          <span class="text-slate-400 mr-2 text-xs font-medium">DATE:</span>
+          <input type="date" id="activeDate" class="bg-transparent text-white font-semibold focus:outline-none text-sm cursor-pointer" />
         </div>
 
-        <!-- Seed 14-Day History Button -->
-        <button onclick="seed14DayHistory(true)" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition shadow-sm" title="Populate 14 days of realistic UPSC batch logs for Delta & Weekly Analytics">
-          <i class="fa-solid fa-clock-rotate-left"></i>
-          <span class="hidden md:inline">Seed 14-Day History</span>
+        <button id="rosterBtn" onclick="openRosterModal()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1.5 transition">
+          <span>👥 Roster & PINs (10)</span>
         </button>
 
-        <!-- Edit Batch Roster Button -->
-        <button onclick="openRosterModal()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-1.5 transition shadow-sm">
-          <i class="fa-solid fa-users text-emerald-400"></i>
-          <span>Edit Batch Roster (10)</span>
+        <button id="kpiBtn" onclick="openKpiModal()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1.5 transition">
+          <span>⚙️ KPI Cutoffs</span>
         </button>
 
-        <!-- KPI Cutoffs Button -->
-        <button onclick="openKpiModal()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-1.5 transition shadow-sm">
-          <i class="fa-solid fa-sliders text-blue-400"></i>
-          <span class="hidden sm:inline">KPI Cutoffs</span>
+        <button onclick="exportCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition shadow-sm">
+          ⬇️ Export CSV
         </button>
-
-        <!-- Export CSV Dropdown / Buttons -->
-        <div class="relative inline-block">
-          <button onclick="toggleExportMenu()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition shadow-md">
-            <i class="fa-solid fa-file-csv"></i>
-            <span>Export CSV</span>
-            <i class="fa-solid fa-caret-down text-xs ml-0.5"></i>
-          </button>
-          <div id="exportDropdown" class="hidden absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 text-slate-800 text-xs font-semibold">
-            <button onclick="exportCSV(); toggleExportMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-100 flex items-center gap-2">
-              <i class="fa-regular fa-calendar-check text-emerald-600"></i>
-              <span>Export Selected Day CSV</span>
-            </button>
-            <button onclick="exportWeeklyCSV(); toggleExportMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-100 flex items-center gap-2 border-t border-slate-100">
-              <i class="fa-solid fa-chart-Simple text-indigo-600"></i>
-              <span>Export 7-Day Delta Report CSV</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   </header>
 
-  <!-- ==========================================
-       MAIN CONTENT AREA
-       ========================================== -->
+  <!-- MAIN CONTAINER -->
   <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 space-y-6">
 
-    <!-- Toast Notification Banner -->
-    <div id="toastBanner" class="hidden fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3 text-sm font-medium transition-all">
-      <span id="toastIcon" class="text-emerald-400"><i class="fa-solid fa-circle-check"></i></span>
-      <span id="toastMessage">Saved successfully!</span>
-    </div>
+    <!-- KPI SUMMARY CARDS -->
+    <section class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cohort Avg Today</div>
+        <div class="mt-1 flex items-baseline gap-2">
+          <span id="statAvgHours" class="text-2xl font-bold text-slate-900">0.0h</span>
+          <span class="text-xs text-slate-500">/ <span id="targetLabel">8.0</span>h target</span>
+        </div>
+        <div id="statLoggedCount" class="mt-1 text-xs text-slate-500">0 of 10 logged</div>
+      </div>
 
-    <!-- ==========================================
-         2. MANUU ASPIRATIONAL COHORT KPI CARDS
-         ========================================== -->
-    <section class="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
-      <!-- Card 1: Cohort Average -->
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
+      <div class="bg-blue-50/70 p-4 rounded-xl border border-blue-200 shadow-sm">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Cohort Avg Today</span>
-          <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-xs">
-            <i class="fa-solid fa-chart-line"></i>
-          </span>
+          <span class="text-xs font-bold text-blue-800 uppercase">🔵 Achievers</span>
+          <span class="text-[11px] font-medium text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded" id="cutoffAchieverLabel">≥9.5h + Test</span>
         </div>
-        <div class="mt-2 flex items-baseline gap-1.5">
-          <span id="statAvgHours" class="text-2xl sm:text-3xl font-extrabold text-slate-900">0.0h</span>
-          <span class="text-xs font-medium text-slate-500">/ <span id="targetLabel">8.0</span>h target</span>
-        </div>
-        <div class="mt-2 flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
-          <span id="statLoggedCount">0 of 10 logged</span>
-          <span id="statTotalQs" class="font-semibold text-teal-700">0 Qs • 0 MCQs</span>
-        </div>
+        <div id="countAchiever" class="text-2xl font-bold text-blue-900 mt-1">0</div>
+        <div class="text-xs text-blue-700 mt-0.5">Pace setters</div>
       </div>
 
-      <!-- Card 2: Achievers -->
-      <div class="bg-gradient-to-br from-blue-50 to-indigo-50/70 p-4 rounded-2xl border border-blue-200 shadow-sm flex flex-col justify-between">
-        <div class="flex items-center justify-between gap-1">
-          <span class="text-xs font-extrabold text-blue-900 uppercase tracking-wide flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span> Achievers
-          </span>
-          <span id="cutoffAchieverLabel" class="text-[11px] font-bold text-blue-700 bg-blue-100/90 border border-blue-200 px-2 py-0.5 rounded-full">
-            ≥9.5h + Test
-          </span>
+      <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-emerald-800 uppercase">🟢 Front Runners</span>
+          <span class="text-[11px] font-medium text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded" id="cutoffFrontLabel">8.0–9.4h</span>
         </div>
-        <div class="mt-2 flex items-baseline justify-between">
-          <span id="countAchiever" class="text-2xl sm:text-3xl font-extrabold text-blue-950">0</span>
-          <span class="text-xs font-semibold text-blue-700">students today</span>
-        </div>
-        <div class="text-[11px] text-blue-700/90 mt-2 pt-2 border-t border-blue-200/60 font-medium">
-          Benchmark setters • High hours + test
-        </div>
+        <div id="countFrontRunner" class="text-2xl font-bold text-emerald-900 mt-1">0</div>
+        <div class="text-xs text-emerald-700 mt-0.5">Meeting 8h target</div>
       </div>
 
-      <!-- Card 3: Front Runners -->
-      <div class="bg-gradient-to-br from-emerald-50 to-teal-50/70 p-4 rounded-2xl border border-emerald-200 shadow-sm flex flex-col justify-between">
-        <div class="flex items-center justify-between gap-1">
-          <span class="text-xs font-extrabold text-emerald-900 uppercase tracking-wide flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span> Front Runners
-          </span>
-          <span id="cutoffFrontLabel" class="text-[11px] font-bold text-emerald-800 bg-emerald-100/90 border border-emerald-200 px-2 py-0.5 rounded-full">
-            8.0–9.4h
-          </span>
+      <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-amber-800 uppercase">🟡 Performers</span>
+          <span class="text-[11px] font-medium text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded" id="cutoffPerformerLabel">5.5–7.9h</span>
         </div>
-        <div class="mt-2 flex items-baseline justify-between">
-          <span id="countFrontRunner" class="text-2xl sm:text-3xl font-extrabold text-emerald-950">0</span>
-          <span class="text-xs font-semibold text-emerald-700">students today</span>
-        </div>
-        <div class="text-[11px] text-emerald-800/90 mt-2 pt-2 border-t border-emerald-200/60 font-medium">
-          Meeting the 8h academy target
-        </div>
+        <div id="countPerformer" class="text-2xl font-bold text-amber-900 mt-1">0</div>
+        <div class="text-xs text-amber-700 mt-0.5">Moderate effort</div>
       </div>
 
-      <!-- Card 4: Performers -->
-      <div class="bg-gradient-to-br from-amber-50 to-yellow-50/70 p-4 rounded-2xl border border-amber-200 shadow-sm flex flex-col justify-between">
-        <div class="flex items-center justify-between gap-1">
-          <span class="text-xs font-extrabold text-amber-900 uppercase tracking-wide flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> Performers
-          </span>
-          <span id="cutoffPerformerLabel" class="text-[11px] font-bold text-amber-800 bg-amber-100/90 border border-amber-200 px-2 py-0.5 rounded-full">
-            5.5–7.9h
-          </span>
+      <div class="bg-rose-50/70 p-4 rounded-xl border border-rose-200 shadow-sm col-span-2 md:col-span-1">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-rose-800 uppercase">🔴 Aspirants</span>
+          <span class="text-[11px] font-medium text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded" id="cutoffAspirantLabel">&lt;5.5h</span>
         </div>
-        <div class="mt-2 flex items-baseline justify-between">
-          <span id="countPerformer" class="text-2xl sm:text-3xl font-extrabold text-amber-950">0</span>
-          <span class="text-xs font-semibold text-amber-800">students today</span>
-        </div>
-        <div class="text-[11px] text-amber-800/90 mt-2 pt-2 border-t border-amber-200/60 font-medium">
-          Moderate effort • Push for 8h
-        </div>
-      </div>
-
-      <!-- Card 5: Aspirants -->
-      <div class="bg-gradient-to-br from-rose-50 to-red-50/70 p-4 rounded-2xl border border-rose-200 shadow-sm flex flex-col justify-between col-span-2 lg:col-span-1">
-        <div class="flex items-center justify-between gap-1">
-          <span class="text-xs font-extrabold text-rose-900 uppercase tracking-wide flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-rose-600 inline-block"></span> Aspirants
-          </span>
-          <span id="cutoffAspirantLabel" class="text-[11px] font-bold text-rose-800 bg-rose-100/90 border border-rose-200 px-2 py-0.5 rounded-full">
-            &lt;5.5h
-          </span>
-        </div>
-        <div class="mt-2 flex items-baseline justify-between">
-          <span id="countAspirant" class="text-2xl sm:text-3xl font-extrabold text-rose-950">0</span>
-          <span class="text-xs font-semibold text-rose-700">students today</span>
-        </div>
-        <div class="text-[11px] text-rose-800/90 mt-2 pt-2 border-t border-rose-200/60 font-medium">
-          Needs 1-on-1 mentor check-in
-        </div>
+        <div id="countAspirant" class="text-2xl font-bold text-rose-900 mt-1">0</div>
+        <div class="text-xs text-rose-700 mt-0.5">Needs mentor check-in</div>
       </div>
     </section>
 
-    <!-- ==========================================
-         3. TRI-MODE SWITCHER TABS (PHASE 1 + PHASE 2)
-         ========================================== -->
-    <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-2.5 rounded-2xl border border-slate-200 shadow-xs">
-      <div class="inline-flex flex-wrap rounded-xl bg-slate-100 p-1 w-full lg:w-auto gap-1">
-        <button id="tabMatrixBtn" onclick="switchMode('matrix')" class="flex-1 lg:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-slate-900 text-white shadow-xs transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-table-cells"></i>
-          <span>1. Mentor 10-Student Matrix</span>
+    <!-- MODE SWITCHER TABS & SYNC BAR -->
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-3">
+      <div class="inline-flex flex-wrap rounded-lg bg-slate-200 p-1 gap-1">
+        <button id="tabMatrixBtn" onclick="switchMode('matrix')" class="px-3.5 py-2 rounded-md text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-sm transition">
+          📋 1. Mentor Matrix & Override Editor
         </button>
-        <button id="tabAnalyticsBtn" onclick="switchMode('analytics')" class="flex-1 lg:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-chart-pie text-indigo-600"></i>
-          <span>2. Weekly Delta (Δ) & Neglect Radar</span>
-          <span id="radarAlertCountBadge" class="bg-rose-600 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded-full">0</span>
+        <button id="tabAnalyticsBtn" onclick="switchMode('analytics')" class="px-3.5 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition">
+          📈 2. Weekly Delta (Δ) & Neglect Radar
         </button>
-        <button id="tabStudentBtn" onclick="switchMode('student')" class="flex-1 lg:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-mobile-screen-button"></i>
-          <span>3. Student Self-Logger</span>
+        <button id="tabStudentBtn" onclick="switchMode('student')" class="px-3.5 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition">
+          📱 3. Student Mobile PIN Portal
         </button>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2 px-2">
-        <span class="inline-flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          14-Day Rolling Engine Ready
-        </span>
-        <span class="text-slate-300">|</span>
-        <button onclick="loadDemoData()" class="text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-lg transition">
-          <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Reload Today
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <button onclick="manualSyncFromCloud()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1 transition">
+          <span>🔄 Sync Now</span>
         </button>
-        <button onclick="clearDayLogs()" class="text-xs font-semibold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-2.5 py-1.5 rounded-lg transition">
-          <i class="fa-solid fa-rotate-left mr-1"></i>Reset Day
+        <button onclick="seed14DayHistory()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-3 py-1.5 rounded-lg font-medium transition">
+          ⚡ Simulate 14-Day History
         </button>
       </div>
     </div>
 
     <!-- ==========================================
-         VIEW 1: MENTOR 10-STUDENT MATRIX EDITOR
+         MODE 1: MENTOR 10-STUDENT MATRIX & OVERRIDE EDITOR
          ========================================== -->
     <section id="matrixView" class="space-y-4">
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <!-- Table Header Bar -->
-        <div class="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
-              <span>Daily Cohort Study Matrix</span>
-              <span id="matrixDateBadge" class="text-xs font-semibold bg-slate-200 text-slate-700 px-2.5 py-0.5 rounded-full"></span>
+              <span>Batch Daily Study Hours Matrix (with Mentor Override & Row Lock)</span>
             </h2>
-            <p class="text-xs text-slate-500 mt-0.5">
-              Inline spreadsheet editor: adjust hours (<code class="bg-slate-200 px-1 rounded">0.5h</code> steps) or test counts. Click any student's name to open their 7-Day Deep-Dive Chart.
-            </p>
-          </div>
-          <div class="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-600">
-            <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-xs bg-indigo-500 inline-block"></i> GS</span>
-            <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-xs bg-purple-500 inline-block"></i> Optional</span>
-            <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-xs bg-teal-500 inline-block"></i> Mains (Hrs + Qs)</span>
-            <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-xs bg-cyan-500 inline-block"></i> Prelims (Hrs + MCQs)</span>
-            <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-xs bg-amber-500 inline-block"></i> CSAT</span>
-          </div>
-        </div>
-
-        <!-- Responsive Matrix Table -->
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-100/90 text-slate-600 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3 px-3 w-14">ID</th>
-                <th class="py-3 px-3 min-w-[170px]">Student & Optional</th>
-                <th class="py-3 px-2 text-center w-24">Status</th>
-                <th class="py-3 px-2 text-center bg-indigo-50/60 border-l border-slate-200/60">
-                  GS<br><span class="text-[10px] font-medium text-indigo-600">Hours</span>
-                </th>
-                <th class="py-3 px-2 text-center bg-purple-50/60">
-                  Optional<br><span class="text-[10px] font-medium text-purple-600">Hours</span>
-                </th>
-                <th class="py-3 px-2.5 text-center bg-teal-50/70 border-l border-slate-200/60 min-w-[135px]">
-                  Mains Test<br><span class="text-[10px] font-semibold text-teal-700">Hrs &nbsp;|&nbsp; Qs Written</span>
-                </th>
-                <th class="py-3 px-2.5 text-center bg-cyan-50/70 border-l border-slate-200/60 min-w-[135px]">
-                  Prelims Test<br><span class="text-[10px] font-semibold text-cyan-700">Hrs &nbsp;|&nbsp; MCQs Solved</span>
-                </th>
-                <th class="py-3 px-2 text-center bg-amber-50/60 border-l border-slate-200/60">
-                  CSAT<br><span class="text-[10px] font-medium text-amber-700">Hours</span>
-                </th>
-                <th class="py-3 px-3 text-center border-l border-slate-200/60 w-24">
-                  Total<br><span class="text-[10px] font-normal text-slate-400">Target 8h</span>
-                </th>
-                <th class="py-3 px-3 text-center min-w-[138px]">
-                  Aspirational Tier
-                </th>
-                <th class="py-3 px-3 min-w-[205px]">
-                  Topics Covered / Mentor Remark
-                </th>
-              </tr>
-            </thead>
-            <tbody id="matrixTableBody" class="divide-y divide-slate-200/80 text-sm">
-              <!-- Populated dynamically via JS -->
-            </tbody>
-            <!-- Daily Batch Totals Footer Row -->
-            <tfoot class="bg-slate-900 text-white font-bold text-xs">
-              <tr>
-                <td colspan="3" class="py-3 px-4 text-right uppercase tracking-wider text-slate-300">Batch Daily Averages & Totals:</td>
-                <td id="footAvgGS" class="py-3 px-2 text-center text-indigo-300">0.0h</td>
-                <td id="footAvgOpt" class="py-3 px-2 text-center text-purple-300">0.0h</td>
-                <td id="footMains" class="py-3 px-2 text-center text-teal-300">0.0h | 0 Qs</td>
-                <td id="footPrelims" class="py-3 px-2 text-center text-cyan-300">0.0h | 0 MCQs</td>
-                <td id="footAvgCSAT" class="py-3 px-2 text-center text-amber-300">0.0h</td>
-                <td id="footAvgTotal" class="py-3 px-3 text-center text-emerald-400 text-sm">0.0h avg</td>
-                <td colspan="2" class="py-3 px-4 text-slate-300 font-normal text-xs">
-                  Switch to <span class="underline cursor-pointer text-emerald-400 font-semibold" onclick="switchMode('analytics')">Phase 2 Weekly Delta & Neglect Radar</span> for 7-day insights →
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==========================================
-         VIEW 2: PHASE 2 WEEKLY DELTA & NEGLECT RADAR
-         ========================================== -->
-    <section id="analyticsView" class="hidden space-y-6">
-
-      <!-- TOP BANNER: MOST IMPROVED ASPIRANT (DELTA RANK #1) & COHORT WEEKLY HIGHLIGHTS -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <!-- Weekly Delta Rank #1 Spotlight Card -->
-        <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-5 rounded-2xl shadow-md border border-indigo-500/30 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2.5 py-0.5 rounded-full">
-                🚀 Weekly Delta Rank #1 (Most Improved)
-              </span>
-              <i class="fa-solid fa-trophy text-amber-400 text-lg"></i>
-            </div>
-            <h3 id="deltaTopStudentName" class="text-xl font-extrabold mt-3">—</h3>
-            <p id="deltaTopStudentSub" class="text-xs text-slate-300 mt-0.5">Optional: —</p>
-          </div>
-          <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
-            <div>
-              <span class="text-slate-400 block">7-Day Rolling Avg</span>
-              <span id="deltaTopCurrAvg" class="text-base font-bold text-white">0.0h/day</span>
-            </div>
-            <div>
-              <span class="text-slate-400 block">Prev Week Avg</span>
-              <span id="deltaTopPrevAvg" class="text-base font-semibold text-slate-300">0.0h/day</span>
-            </div>
-            <div class="text-right">
-              <span class="text-slate-400 block">Weekly Delta (Δ)</span>
-              <span id="deltaTopBadge" class="text-base font-extrabold text-emerald-400">+0.0h/day ▲</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 7-Day Cohort Answer Writing & MCQ Volume -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">7-Day Cohort Practice Output</span>
-              <span class="text-xs font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">Last 7 Days</span>
-            </div>
-            <div class="grid grid-cols-2 gap-3 mt-3">
-              <div class="p-3 rounded-xl bg-teal-50/70 border border-teal-200">
-                <div class="text-xs font-bold text-teal-800">Mains Qs Written</div>
-                <div id="weeklyCohortMainsQs" class="text-2xl font-extrabold text-teal-950 mt-1">0</div>
-                <div class="text-[11px] text-teal-700 mt-0.5">Batch 7-day total</div>
-              </div>
-              <div class="p-3 rounded-xl bg-cyan-50/70 border border-cyan-200">
-                <div class="text-xs font-bold text-cyan-800">Prelims MCQs Solved</div>
-                <div id="weeklyCohortPrelimsMCQs" class="text-2xl font-extrabold text-cyan-950 mt-1">0</div>
-                <div class="text-[11px] text-cyan-700 mt-0.5">Batch 7-day total</div>
-              </div>
-            </div>
-          </div>
-          <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>7-Day Cohort Study Hours Avg:</span>
-            <span id="weeklyCohortAvgHrs" class="font-extrabold text-slate-900 text-sm">0.0h / day</span>
-          </div>
-        </div>
-
-        <!-- Automated Subject Neglect & Burnout Early Warning Radar Summary -->
-        <div class="bg-white p-5 rounded-2xl border border-rose-200 shadow-sm flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-extrabold uppercase tracking-wider text-rose-700 flex items-center gap-1.5">
-                <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
-                Subject Neglect & Burnout Radar
-              </span>
-              <span id="totalWarningsPill" class="text-xs font-bold bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full">0 Alerts</span>
-            </div>
-            <p class="text-xs text-slate-500 mt-1">
-              Auto-scans the last 4–7 days for Optional neglect, Mains writing droughts, CSAT blindspots, and sudden hour drops.
-            </p>
-            <div id="compactRadarSummary" class="mt-3 space-y-1.5 max-h-28 overflow-y-auto pr-1">
-              <!-- Populated by JS -->
-            </div>
-          </div>
-          <div class="mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-400 flex justify-between">
-            <span>Click any student below for full WhatsApp report</span>
-            <span class="text-rose-600 font-semibold">Live Diagnostic</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- ==========================================
-           ASPIRATIONAL COHORT 7-DAY ROLLING LEADERBOARD & DELTA TABLE
-           ========================================== -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h2 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
-              <i class="fa-solid fa-ranking-star text-indigo-600"></i>
-              <span>MANUU Aspirational Cohort — 7-Day Rolling Leaderboard & Delta (Δ) Ranking</span>
-            </h2>
-            <p class="text-xs text-slate-500 mt-0.5">
-              Compares <b id="currWindowLabel">Current 7 Days</b> vs <b id="prevWindowLabel">Previous 7 Days</b>. Click any row to inspect the student's 7-day chart & copy their WhatsApp review.
+            <p class="text-xs text-slate-500">
+              When you edit a student's cell, it tags as <span class="font-semibold text-purple-700">✏️ Mentor Override</span> and preserves the student's original mobile submission in the audit trail. Click <span class="font-semibold text-slate-700">🔒 Lock</span> to freeze a verified row on the student's phone.
             </p>
           </div>
           <div class="flex items-center gap-2">
-            <button onclick="exportWeeklyCSV()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-              <i class="fa-solid fa-download"></i> Download 7-Day Delta CSV
+            <button onclick="toggleLockAllToday(true)" class="text-xs bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg font-semibold transition">
+              🔒 Verify & Lock All Today
+            </button>
+            <button onclick="toggleLockAllToday(false)" class="text-xs bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-2.5 py-1.5 rounded-lg font-medium transition">
+              🔓 Unlock All
+            </button>
+            <button onclick="clearDayLogs()" class="text-xs text-rose-600 hover:bg-rose-50 px-2.5 py-1.5 rounded-lg border border-rose-200 font-medium">
+              Reset Day
             </button>
           </div>
         </div>
@@ -485,203 +209,219 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="bg-slate-100/90 text-slate-600 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3 px-3 w-16 text-center">Rank</th>
-                <th class="py-3 px-3 min-w-[180px]">Student & Optional</th>
-                <th class="py-3 px-3 text-center bg-indigo-50/50">7-Day Avg<br><span class="text-[10px] font-normal text-slate-500">(Hrs/Day)</span></th>
-                <th class="py-3 px-3 text-center">Prev 7-Day<br><span class="text-[10px] font-normal text-slate-400">Baseline</span></th>
-                <th class="py-3 px-3 text-center bg-emerald-50/40">Weekly Delta (Δ)<br><span class="text-[10px] font-normal text-slate-500">Improvement</span></th>
-                <th class="py-3 px-3 text-center">8h Target Hit<br><span class="text-[10px] font-normal text-slate-400">Consistency</span></th>
-                <th class="py-3 px-3 text-center">7-Day Mains<br><span class="text-[10px] font-normal text-teal-600">Qs Written</span></th>
-                <th class="py-3 px-3 text-center">7-Day Prelims<br><span class="text-[10px] font-normal text-cyan-600">MCQs Solved</span></th>
-                <th class="py-3 px-3 text-center min-w-[135px]">7-Day Rolling Tier</th>
-                <th class="py-3 px-3 min-w-[220px]">Active Neglect / Burnout Warnings</th>
+              <tr class="bg-slate-100/80 text-slate-600 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-2.5">ID</th>
+                <th class="py-3 px-3 min-w-[155px]">Student & Optional</th>
+                <th class="py-3 px-2 text-center">Source / Audit</th>
+                <th class="py-3 px-2 text-center">Status</th>
+                <th class="py-3 px-1.5 text-center bg-indigo-50/50">GS<br><span class="text-[10px] font-normal text-slate-400">(Hrs)</span></th>
+                <th class="py-3 px-1.5 text-center bg-purple-50/50">Opt<br><span class="text-[10px] font-normal text-slate-400">(Hrs)</span></th>
+                <th class="py-3 px-1.5 text-center bg-teal-50/60">Mains Test<br><span class="text-[10px] font-normal text-slate-500">Hrs | Qs</span></th>
+                <th class="py-3 px-1.5 text-center bg-cyan-50/60">Prelims Test<br><span class="text-[10px] font-normal text-slate-500">Hrs | MCQs</span></th>
+                <th class="py-3 px-1.5 text-center bg-amber-50/50">CSAT<br><span class="text-[10px] font-normal text-slate-400">(Hrs)</span></th>
+                <th class="py-3 px-2.5 text-center">Total<br><span class="text-[10px] font-normal text-slate-400">Target 8h</span></th>
+                <th class="py-3 px-2.5 text-center min-w-[125px]">Cohort Tier</th>
+                <th class="py-3 px-2 text-center">Freeze</th>
+                <th class="py-3 px-3 min-w-[180px]">Topics / Mentor Override Note</th>
               </tr>
             </thead>
-            <tbody id="deltaTableBody" class="divide-y divide-slate-200 text-sm">
-              <!-- Populated dynamically via JS -->
+            <tbody id="matrixTableBody" class="divide-y divide-slate-200 text-sm">
+              <!-- Populated by JS -->
             </tbody>
           </table>
         </div>
       </div>
+    </section>
 
-      <!-- ==========================================
-           STUDENT 7-DAY DEEP-DIVE INSPECTOR & WHATSAPP MENTOR GENERATOR
-           ========================================== -->
-      <div id="studentDeepDiveCard" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="px-5 py-4 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300 font-bold">
-              <i class="fa-solid fa-magnifying-glass-chart"></i>
+    <!-- ==========================================
+         MODE 2: WEEKLY DELTA (Δ) & NEGLECT RADAR (PHASE 2)
+         ========================================== -->
+    <section id="analyticsView" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Delta Rank #1 Spotlight Card -->
+        <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-5 shadow-md flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full border border-emerald-500/30">
+                🚀 Weekly Delta (Δ) Rank #1
+              </span>
+              <span class="text-xs text-slate-400">7-Day Rolling vs Prev Week</span>
             </div>
-            <div>
-              <h3 class="font-bold text-sm sm:text-base flex items-center gap-2">
-                <span>Student 7-Day Deep-Dive Inspector:</span>
-                <span id="deepDiveStudentName" class="text-emerald-400">Aamir Sohail</span>
-              </h3>
-              <p class="text-xs text-slate-400">Visualizing daily subject split, 8.0h target line, and auto-generated WhatsApp mentorship note</p>
-            </div>
+            <h3 id="deltaWinnerName" class="text-xl font-extrabold mt-3">—</h3>
+            <p id="deltaWinnerMeta" class="text-xs text-slate-300 mt-0.5">Most Improved Aspirant in MANUU Cohort</p>
           </div>
-
-          <!-- Student Quick Selector Pills -->
-          <div class="flex items-center gap-2">
-            <label class="text-xs text-slate-400 font-medium">Inspect Student:</label>
-            <select id="deepDiveStudentSelect" onchange="renderStudentDeepDive(this.value)" class="bg-slate-800 border border-slate-700 text-white text-xs sm:text-sm font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-400">
-              <!-- Populated by JS -->
-            </select>
+          <div class="mt-4 pt-4 border-t border-slate-700/80 flex items-baseline justify-between">
+            <div>
+              <div class="text-xs text-slate-400">Weekly Avg Surge</div>
+              <div id="deltaWinnerScore" class="text-2xl font-black text-emerald-400">+0.0h / day ▲</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-slate-400">Current 7d Avg</div>
+              <div id="deltaWinnerCurrAvg" class="text-lg font-bold text-white">0.0h</div>
+            </div>
           </div>
         </div>
 
-        <div class="p-5 grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <!-- Left 7 Columns: 7-Day Stacked Bar Chart & Subject Distribution -->
-          <div class="lg:col-span-7 space-y-5">
-            <div class="flex items-center justify-between">
-              <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">7-Day Study Hours Stacked Trend (vs 8.0h Academy Target)</h4>
-              <div class="flex flex-wrap gap-2.5 text-[11px] font-semibold text-slate-600">
-                <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-xs bg-indigo-500 inline-block"></i> GS</span>
-                <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-xs bg-purple-500 inline-block"></i> Opt</span>
-                <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-xs bg-teal-500 inline-block"></i> Mains</span>
-                <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-xs bg-cyan-500 inline-block"></i> Prelims</span>
-                <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-xs bg-amber-500 inline-block"></i> CSAT</span>
-              </div>
+        <!-- Subject Neglect & Burnout Radar -->
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-slate-800 text-base">⚠️ Automated Subject Neglect & Slump Radar (Last 7 Days)</h3>
+              <p class="text-xs text-slate-500">Flags aspirants neglecting Optional, Mains Answer Writing, CSAT, or dropping pace.</p>
             </div>
-
-            <!-- 7-Day Vertical Stacked Bar Chart -->
-            <div class="relative bg-slate-50 border border-slate-200 rounded-2xl p-4 pt-8 h-60 flex items-end justify-between gap-2">
-              <!-- 8.0h Target Reference Dashed Line (8h out of 14h max scale = 57.1%) -->
-              <div id="deepDiveTargetLine" class="absolute left-3 right-3 border-t-2 border-dashed border-emerald-500/80 z-10 pointer-events-none flex justify-end" style="bottom: 57%;">
-                <span class="bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded -mt-2.5 mr-1 shadow-xs">
-                  8.0h Target
-                </span>
-              </div>
-
-              <!-- Bars Container -->
-              <div id="deepDiveBarsContainer" class="w-full h-full flex items-end justify-between gap-2 z-20">
-                <!-- Populated by JS -->
-              </div>
-            </div>
-
-            <!-- 7-Day Subject Share Breakdown Bar -->
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2.5">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-bold text-slate-700 uppercase">7-Day Subject Time Allocation (%)</span>
-                <span id="deepDiveTotal7DayHrs" class="font-extrabold text-slate-900">0.0 hrs total in 7 days</span>
-              </div>
-              <div id="deepDiveSubjectSplitBar" class="w-full h-3.5 bg-slate-200 rounded-full overflow-hidden flex">
-                <!-- Populated by JS -->
-              </div>
-              <div id="deepDiveSubjectSplitLegend" class="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1 text-xs">
-                <!-- Populated by JS -->
-              </div>
-            </div>
+            <span id="radarAlertCount" class="text-xs font-bold bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full">0 Alerts</span>
           </div>
-
-          <!-- Right 5 Columns: Diagnostic Warnings & One-Click WhatsApp Mentorship Feedback -->
-          <div class="lg:col-span-5 flex flex-col justify-between bg-slate-50 rounded-2xl border border-slate-200 p-4 space-y-4">
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Mentor Diagnostic & WhatsApp Card</span>
-                <span id="deepDiveTierBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold"></span>
-              </div>
-
-              <!-- Active Warnings Box for Selected Student -->
-              <div id="deepDiveWarningsBox" class="space-y-1.5">
-                <!-- Populated by JS -->
-              </div>
-
-              <!-- Auto-Generated WhatsApp Message Textarea -->
-              <div>
-                <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">
-                  Auto-Generated Weekly Mentor Feedback (Editable):
-                </label>
-                <textarea id="whatsappFeedbackText" rows="7" class="w-full text-xs font-mono leading-relaxed bg-white border border-slate-300 rounded-xl p-3 text-slate-800 focus:outline-none focus:border-emerald-500"></textarea>
-              </div>
-            </div>
-
-            <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-200">
-              <button onclick="openStudentInMobileLogger(document.getElementById('deepDiveStudentSelect').value)" class="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-2 rounded-xl hover:bg-slate-200/70 transition">
-                Edit Today's Log
-              </button>
-              <button onclick="copyWhatsAppReport()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-sm transition">
-                <i class="fa-brands fa-whatsapp text-base"></i>
-                <span>Copy WhatsApp Mentor Review</span>
-              </button>
-            </div>
+          <div id="neglectRadarList" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-48 overflow-y-auto pr-1">
+            <!-- Populated by JS -->
           </div>
         </div>
       </div>
 
-    </section>
-
-    <!-- ==========================================
-         VIEW 3: STUDENT SELF-LOGGER VIEW (MOBILE-FIRST)
-         ========================================== -->
-    <section id="studentView" class="hidden max-w-2xl mx-auto">
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
-        <!-- Student Header -->
-        <div class="bg-slate-900 text-white p-5">
-          <div class="flex items-center justify-between">
-            <span class="text-xs uppercase tracking-wider font-bold text-emerald-400 flex items-center gap-1.5">
-              <i class="fa-solid fa-bolt"></i> Student Daily Check-In
-            </span>
-            <span id="studentViewDateBadge" class="text-xs bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-lg text-slate-300 font-medium"></span>
+      <!-- 7-Day Rolling Leaderboard & Inspector -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm">7-Day Rolling Cohort Leaderboard & Delta (Δ)</h3>
+              <p class="text-xs text-slate-500">Click any student row to inspect their 7-day breakdown & copy a WhatsApp mentorship review.</p>
+            </div>
           </div>
-          <h2 class="text-lg sm:text-xl font-bold mt-1">Log Your Daily UPSC Study Hours</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Select your name below and tap +/- to log today's effort across all 5 UPSC pillars.</p>
-
-          <!-- Student Selector Dropdown -->
-          <div class="mt-4">
-            <label class="block text-xs text-slate-300 mb-1.5 font-semibold">Select Student (MANUU CSE Cohort):</label>
-            <select id="studentSelectDropdown" onchange="loadStudentIntoForm()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-3.5 py-2.5 text-sm font-bold focus:outline-none focus:border-emerald-400 cursor-pointer">
-              <!-- Populated by JS -->
-            </select>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 text-[11px] font-bold uppercase border-b border-slate-200">
+                  <th class="py-2.5 px-3">Rank</th>
+                  <th class="py-2.5 px-3">Student</th>
+                  <th class="py-2.5 px-2 text-center">7d Avg/Day</th>
+                  <th class="py-2.5 px-2 text-center">Weekly Delta (Δ)</th>
+                  <th class="py-2.5 px-2 text-center">Mains Qs (7d)</th>
+                  <th class="py-2.5 px-2 text-center">Prelims MCQs (7d)</th>
+                  <th class="py-2.5 px-3 text-center">Rolling Tier</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardTableBody" class="divide-y divide-slate-200">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <!-- Live Progress Bar & Tier Preview -->
-        <div class="p-4 sm:p-5 bg-slate-50 border-b border-slate-200">
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <div class="flex items-baseline gap-2">
-              <span class="text-xs font-bold text-slate-500 uppercase">Today's Total:</span>
-              <span id="formTotalHours" class="text-2xl font-extrabold text-slate-900">0.0 hrs</span>
-              <span class="text-xs font-medium text-slate-500">/ <span id="formTargetHours">8.0</span>h target</span>
+        <!-- Student 7-Day Deep-Dive Inspector -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">7-Day Student Inspector</span>
+                <h3 id="inspectStudentName" class="font-bold text-base text-slate-900">Select a student</h3>
+              </div>
+              <span id="inspectStudentTier" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100">—</span>
+            </div>
+
+            <!-- 7-Day Mini Bar Chart -->
+            <div class="mt-4">
+              <div class="flex items-center justify-between text-xs text-slate-500 mb-2">
+                <span>Last 7 Days Daily Trend</span>
+                <span class="text-emerald-700 font-semibold">--- 8.0h Target</span>
+              </div>
+              <div id="inspectorBars" class="h-32 flex items-end justify-between gap-2 pt-4 pb-1 px-2 bg-slate-50 rounded-xl border border-slate-200/80 relative">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+
+            <!-- Subject Split Breakdown -->
+            <div id="inspectorSubjectSplit" class="mt-4 space-y-1.5 text-xs">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <div class="mt-5 pt-3 border-t border-slate-200">
+            <button onclick="copyWhatsAppReport()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 px-4 rounded-xl text-xs sm:text-sm shadow-sm transition flex items-center justify-center gap-2">
+              <span>📲 Copy Weekly WhatsApp Mentor Review</span>
+            </button>
+            <p id="waCopyToast" class="text-[11px] text-center text-emerald-600 font-medium mt-1.5 hidden">✓ Copied formatted mentorship report to clipboard!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         MODE 3: STUDENT MOBILE PIN PORTAL (SELF-LOGGER)
+         ========================================== -->
+    <section id="studentView" class="hidden max-w-xl mx-auto">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
+        <div class="bg-slate-900 text-white p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs uppercase tracking-wider font-semibold text-emerald-400">📱 Student Mobile Check-In Portal</span>
+            <span id="studentViewDateBadge" class="text-xs bg-slate-800 px-2.5 py-1 rounded text-slate-300"></span>
+          </div>
+          <h2 class="text-lg font-bold mt-1">Submit Your Daily UPSC Study Hours</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Select your name, verify your 4-digit Student PIN, and tap Submit. Updates sync to the Mentor Dashboard & Google Sheet.</p>
+
+          <!-- Student Selector & PIN Auth Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
+            <div class="sm:col-span-2">
+              <label class="block text-xs text-slate-300 mb-1 font-medium">1. Select Your Name</label>
+              <select id="studentSelectDropdown" onchange="onStudentMobileChange()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2.5 text-sm font-semibold focus:outline-none focus:border-emerald-400">
+                <!-- Populated by JS -->
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-300 mb-1 font-medium">2. Student PIN</label>
+              <input type="password" id="studentPinInput" maxlength="6" oninput="verifyStudentPinLive()" placeholder="e.g. 1001" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm font-mono font-bold text-center tracking-widest focus:outline-none focus:border-emerald-400" />
+            </div>
+          </div>
+          <div id="pinHintBanner" class="mt-2 text-[11px] text-amber-300 flex items-center justify-between">
+            <span id="pinStatusText">🔑 Default demo PIN for M01 is <b>1001</b> (M02 is 1002, etc.)</span>
+            <button onclick="autoFillDemoPin()" class="underline text-emerald-300 hover:text-white font-semibold">Auto-fill PIN</button>
+          </div>
+        </div>
+
+        <!-- Lock Banner if Mentor Froze the Row -->
+        <div id="studentLockedBanner" class="hidden bg-purple-900 text-white px-4 py-3 text-xs font-semibold flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🔒</span>
+            <div>
+              <div>Verified & Locked by Mentor</div>
+              <div class="text-[11px] text-purple-200 font-normal">Your mentor has audited and frozen today's entry. Contact your mentor to request an edit.</div>
+            </div>
+          </div>
+          <span class="bg-purple-700 px-2.5 py-1 rounded text-[11px]">Read-Only</span>
+        </div>
+
+        <!-- Mentor Override Notice if Mentor Adjusted Score -->
+        <div id="studentOverrideBanner" class="hidden bg-amber-50 border-b border-amber-200 px-4 py-2.5 text-xs text-amber-900 flex items-center justify-between">
+          <div>
+            <span class="font-bold">✏️ Mentor Adjusted Score:</span>
+            <span id="studentOverrideDetail">Your mentor reviewed and adjusted this log.</span>
+          </div>
+        </div>
+
+        <!-- Live Progress & Tier Preview Bar -->
+        <div class="p-4 bg-slate-50 border-b border-slate-200">
+          <div class="flex items-center justify-between mb-1.5">
+            <div>
+              <span class="text-xs font-semibold text-slate-500 uppercase">Today's Total:</span>
+              <span id="formTotalHours" class="text-xl font-bold text-slate-900 ml-1">0.0 hrs</span>
+              <span class="text-xs text-slate-400">/ 8.0h target</span>
             </div>
             <div id="formTierBadge" class="px-3 py-1 rounded-full text-xs font-bold">
               🔴 Aspirant
             </div>
           </div>
-
-          <!-- Multi-segment Bar -->
-          <div class="w-full h-3.5 bg-slate-200 rounded-full overflow-hidden flex shadow-inner">
-            <div id="barGS" class="bg-indigo-500 h-full transition-all duration-300" style="width:0%" title="GS"></div>
-            <div id="barOpt" class="bg-purple-500 h-full transition-all duration-300" style="width:0%" title="Optional"></div>
-            <div id="barMains" class="bg-teal-500 h-full transition-all duration-300" style="width:0%" title="Mains Test"></div>
-            <div id="barPrelims" class="bg-cyan-500 h-full transition-all duration-300" style="width:0%" title="Prelims Test"></div>
-            <div id="barCSAT" class="bg-amber-500 h-full transition-all duration-300" style="width:0%" title="CSAT"></div>
-          </div>
-
-          <!-- Color Legend -->
-          <div class="flex flex-wrap items-center justify-between gap-2 mt-2.5 text-[11px] text-slate-600 font-semibold">
-            <div class="flex flex-wrap gap-3">
-              <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-full bg-indigo-500 inline-block"></i> GS</span>
-              <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></i> Optional</span>
-              <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-full bg-teal-500 inline-block"></i> Mains Test</span>
-              <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-full bg-cyan-500 inline-block"></i> Prelims Test</span>
-              <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></i> CSAT</span>
-            </div>
-            <span id="formTierHint" class="text-[11px] text-slate-500 italic"></span>
+          <div class="w-full h-3 bg-slate-200 rounded-full overflow-hidden flex">
+            <div id="barGS" class="bg-indigo-500 h-full transition-all" style="width:0%"></div>
+            <div id="barOpt" class="bg-purple-500 h-full transition-all" style="width:0%"></div>
+            <div id="barMains" class="bg-teal-500 h-full transition-all" style="width:0%"></div>
+            <div id="barPrelims" class="bg-cyan-500 h-full transition-all" style="width:0%"></div>
+            <div id="barCSAT" class="bg-amber-500 h-full transition-all" style="width:0%"></div>
           </div>
         </div>
 
-        <!-- Stepper Input Form -->
-        <div class="p-5 space-y-4">
-          <!-- Attendance Status Row -->
+        <!-- Stepper Inputs -->
+        <fieldset id="studentFormFieldset" class="p-5 space-y-4">
           <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div>
-              <span class="text-sm font-bold text-slate-700">Daily Attendance Status</span>
-              <p class="text-xs text-slate-400">Mark Approved Leave or Sick if unable to study</p>
-            </div>
-            <select id="formStatus" onchange="saveFromStudentForm()" class="border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold bg-white focus:outline-none focus:border-blue-500">
+            <span class="text-sm font-semibold text-slate-700">Attendance Status</span>
+            <select id="formStatus" onchange="updateStudentFormPreviewOnly()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-medium bg-white">
               <option value="Present">✅ Present (Active Study)</option>
               <option value="Leave">🏖️ Approved Leave</option>
               <option value="Sick">🤒 Medical / Sick</option>
@@ -689,167 +429,136 @@
           </div>
 
           <!-- 1. GS Hours -->
-          <div class="flex items-center justify-between bg-indigo-50/50 p-3.5 rounded-xl border border-indigo-100">
+          <div class="flex items-center justify-between bg-indigo-50/40 p-3 rounded-xl border border-indigo-100">
             <div>
               <div class="font-bold text-sm text-slate-800">1. General Studies (GS)</div>
-              <div class="text-xs text-slate-500">Static GS papers + Current Affairs reading</div>
+              <div class="text-xs text-slate-500">Static GS + Current Affairs</div>
             </div>
-            <div class="flex items-center gap-2">
-              <button type="button" onclick="stepFormValue('gs', -0.5)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition">-</button>
-              <input type="number" id="formGS" step="0.5" min="0" max="18" oninput="saveFromStudentForm()" class="w-16 text-center font-bold text-base border border-slate-300 rounded-xl py-1.5 bg-white" />
-              <button type="button" onclick="stepFormValue('gs', 0.5)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition">+</button>
-              <span class="text-xs font-semibold text-slate-500 w-6">hrs</span>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="stepFormValue('gs', -0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100">-</button>
+              <input type="number" id="formGS" step="0.5" min="0" max="18" oninput="updateStudentFormPreviewOnly()" class="w-14 text-center font-bold text-base border border-slate-300 rounded-lg py-1 bg-white" />
+              <button type="button" onclick="stepFormValue('gs', 0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100">+</button>
+              <span class="text-xs font-medium text-slate-500 w-5">hr</span>
             </div>
           </div>
 
           <!-- 2. Optional Hours -->
-          <div class="flex items-center justify-between bg-purple-50/50 p-3.5 rounded-xl border border-purple-100">
+          <div class="flex items-center justify-between bg-purple-50/40 p-3 rounded-xl border border-purple-100">
             <div>
-              <div class="font-bold text-sm text-slate-800">2. Optional Subject (<span id="formStudentOptName" class="text-purple-700">PSIR</span>)</div>
-              <div class="text-xs text-slate-500">Paper I & II lectures, standard books & notes</div>
+              <div class="font-bold text-sm text-slate-800">2. Optional (<span id="formStudentOptName" class="text-purple-700">PSIR</span>)</div>
+              <div class="text-xs text-slate-500">Paper 1 & 2 notes, revision</div>
             </div>
-            <div class="flex items-center gap-2">
-              <button type="button" onclick="stepFormValue('opt', -0.5)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition">-</button>
-              <input type="number" id="formOpt" step="0.5" min="0" max="18" oninput="saveFromStudentForm()" class="w-16 text-center font-bold text-base border border-slate-300 rounded-xl py-1.5 bg-white" />
-              <button type="button" onclick="stepFormValue('opt', 0.5)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition">+</button>
-              <span class="text-xs font-semibold text-slate-500 w-6">hrs</span>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="stepFormValue('opt', -0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100">-</button>
+              <input type="number" id="formOpt" step="0.5" min="0" max="18" oninput="updateStudentFormPreviewOnly()" class="w-14 text-center font-bold text-base border border-slate-300 rounded-lg py-1 bg-white" />
+              <button type="button" onclick="stepFormValue('opt', 0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100">+</button>
+              <span class="text-xs font-medium text-slate-500 w-5">hr</span>
             </div>
           </div>
 
-          <!-- 3. Test - Mains (Hours + Sub-field: Questions Written) -->
-          <div class="bg-teal-50/60 p-3.5 rounded-xl border border-teal-200 space-y-3">
+          <!-- 3. Mains Test -->
+          <div class="bg-teal-50/50 p-3.5 rounded-xl border border-teal-200 space-y-2">
             <div class="flex items-center justify-between">
               <div>
-                <div class="font-bold text-sm text-slate-800">3. Test — Mains Answer Writing</div>
-                <div class="text-xs text-slate-500">Daily answer writing or Sectional/Full Mains Test</div>
+                <div class="font-bold text-sm text-slate-800">3. Test — Mains Writing</div>
+                <div class="text-xs text-slate-500">Daily answer writing or test</div>
               </div>
-              <div class="flex items-center gap-2">
-                <button type="button" onclick="stepFormValue('mainsHrs', -0.5)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition">-</button>
-                <input type="number" id="formMainsHrs" step="0.5" min="0" max="12" oninput="saveFromStudentForm()" class="w-16 text-center font-bold text-base border border-slate-300 rounded-xl py-1.5 bg-white" />
-                <button type="button" onclick="stepFormValue('mainsHrs', 0.5)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition">+</button>
-                <span class="text-xs font-semibold text-slate-500 w-6">hrs</span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="stepFormValue('mainsHrs', -0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100">-</button>
+                <input type="number" id="formMainsHrs" step="0.5" min="0" max="12" oninput="updateStudentFormPreviewOnly()" class="w-14 text-center font-bold text-base border border-slate-300 rounded-lg py-1 bg-white" />
+                <button type="button" onclick="stepFormValue('mainsHrs', 0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100">+</button>
+                <span class="text-xs font-medium text-slate-500 w-5">hr</span>
               </div>
             </div>
-            <!-- Sub-field for Mains Questions Written -->
-            <div class="flex items-center justify-between pt-2.5 border-t border-teal-200/80 text-xs">
-              <span class="font-bold text-teal-900 flex items-center gap-1.5">
-                <i class="fa-solid fa-pen-nib text-teal-600"></i>
-                Sub-field: Mains Questions Written Today
-              </span>
+            <div class="flex items-center justify-between pt-2 border-t border-teal-200/60 text-xs">
+              <span class="font-semibold text-teal-900">↳ Sub-field: Mains Questions Written</span>
               <div class="flex items-center gap-1.5">
-                <button type="button" onclick="stepSubField('formMainsQs', -1)" class="w-7 h-7 rounded-lg bg-white border border-teal-300 font-bold text-teal-800 hover:bg-teal-100">-</button>
-                <input type="number" id="formMainsQs" step="1" min="0" max="60" oninput="saveFromStudentForm()" class="w-14 text-center font-bold border border-teal-400 rounded-lg py-1 bg-white text-teal-950" placeholder="0" />
-                <button type="button" onclick="stepSubField('formMainsQs', 1)" class="w-7 h-7 rounded-lg bg-white border border-teal-300 font-bold text-teal-800 hover:bg-teal-100">+</button>
-                <span class="text-teal-800 font-semibold w-8">Qs</span>
+                <input type="number" id="formMainsQs" step="1" min="0" max="60" oninput="updateStudentFormPreviewOnly()" class="w-16 text-center font-bold border border-teal-400 rounded px-2 py-1 bg-white text-teal-900" />
+                <span class="text-teal-700 font-medium">Qs</span>
               </div>
             </div>
           </div>
 
-          <!-- 4. Test - Prelims (Hours + Sub-field: MCQs Solved) -->
-          <div class="bg-cyan-50/60 p-3.5 rounded-xl border border-cyan-200 space-y-3">
+          <!-- 4. Prelims Test -->
+          <div class="bg-cyan-50/50 p-3.5 rounded-xl border border-cyan-200 space-y-2">
             <div class="flex items-center justify-between">
               <div>
-                <div class="font-bold text-sm text-slate-800">4. Test — Prelims Practice & Analysis</div>
-                <div class="text-xs text-slate-500">Solving MCQs + Reviewing test explanations</div>
+                <div class="font-bold text-sm text-slate-800">4. Test — Prelims Practice</div>
+                <div class="text-xs text-slate-500">MCQs + test revision</div>
               </div>
-              <div class="flex items-center gap-2">
-                <button type="button" onclick="stepFormValue('prelimsHrs', -0.5)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition">-</button>
-                <input type="number" id="formPrelimsHrs" step="0.5" min="0" max="12" oninput="saveFromStudentForm()" class="w-16 text-center font-bold text-base border border-slate-300 rounded-xl py-1.5 bg-white" />
-                <button type="button" onclick="stepFormValue('prelimsHrs', 0.5)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition">+</button>
-                <span class="text-xs font-semibold text-slate-500 w-6">hrs</span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="stepFormValue('prelimsHrs', -0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100">-</button>
+                <input type="number" id="formPrelimsHrs" step="0.5" min="0" max="12" oninput="updateStudentFormPreviewOnly()" class="w-14 text-center font-bold text-base border border-slate-300 rounded-lg py-1 bg-white" />
+                <button type="button" onclick="stepFormValue('prelimsHrs', 0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100">+</button>
+                <span class="text-xs font-medium text-slate-500 w-5">hr</span>
               </div>
             </div>
-            <!-- Sub-field for Prelims MCQs Solved -->
-            <div class="flex items-center justify-between pt-2.5 border-t border-cyan-200/80 text-xs">
-              <span class="font-bold text-cyan-900 flex items-center gap-1.5">
-                <i class="fa-solid fa-list-check text-cyan-600"></i>
-                Sub-field: Prelims MCQs Solved Today
-              </span>
+            <div class="flex items-center justify-between pt-2 border-t border-cyan-200/60 text-xs">
+              <span class="font-semibold text-cyan-900">↳ Sub-field: Prelims MCQs Solved</span>
               <div class="flex items-center gap-1.5">
-                <button type="button" onclick="stepSubField('formPrelimsMCQs', -5)" class="w-7 h-7 rounded-lg bg-white border border-cyan-300 font-bold text-cyan-800 hover:bg-cyan-100">-5</button>
-                <input type="number" id="formPrelimsMCQs" step="5" min="0" max="300" oninput="saveFromStudentForm()" class="w-14 text-center font-bold border border-cyan-400 rounded-lg py-1 bg-white text-cyan-950" placeholder="0" />
-                <button type="button" onclick="stepSubField('formPrelimsMCQs', 5)" class="w-7 h-7 rounded-lg bg-white border border-cyan-300 font-bold text-cyan-800 hover:bg-cyan-100">+5</button>
-                <span class="text-cyan-800 font-semibold w-8">MCQs</span>
+                <input type="number" id="formPrelimsMCQs" step="5" min="0" max="300" oninput="updateStudentFormPreviewOnly()" class="w-16 text-center font-bold border border-cyan-400 rounded px-2 py-1 bg-white text-cyan-900" />
+                <span class="text-cyan-700 font-medium">MCQs</span>
               </div>
             </div>
           </div>
 
           <!-- 5. CSAT Hours -->
-          <div class="flex items-center justify-between bg-amber-50/60 p-3.5 rounded-xl border border-amber-200">
+          <div class="flex items-center justify-between bg-amber-50/50 p-3 rounded-xl border border-amber-200">
             <div>
               <div class="font-bold text-sm text-slate-800">5. CSAT (Paper II)</div>
-              <div class="text-xs text-slate-500">Quant, Logical Reasoning & Reading Passages</div>
+              <div class="text-xs text-slate-500">Quant, Reasoning & RC</div>
             </div>
-            <div class="flex items-center gap-2">
-              <button type="button" onclick="stepFormValue('csat', -0.5)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition">-</button>
-              <input type="number" id="formCSAT" step="0.5" min="0" max="12" oninput="saveFromStudentForm()" class="w-16 text-center font-bold text-base border border-slate-300 rounded-xl py-1.5 bg-white" />
-              <button type="button" onclick="stepFormValue('csat', 0.5)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition">+</button>
-              <span class="text-xs font-semibold text-slate-500 w-6">hrs</span>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="stepFormValue('csat', -0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100">-</button>
+              <input type="number" id="formCSAT" step="0.5" min="0" max="12" oninput="updateStudentFormPreviewOnly()" class="w-14 text-center font-bold text-base border border-slate-300 rounded-lg py-1 bg-white" />
+              <button type="button" onclick="stepFormValue('csat', 0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100">+</button>
+              <span class="text-xs font-medium text-slate-500 w-5">hr</span>
             </div>
           </div>
 
-          <!-- Topics Covered / Self-Reflection Note -->
+          <!-- Topics Covered -->
           <div>
-            <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Topics Covered / Mentor Note</label>
-            <input type="text" id="formRemarks" oninput="saveFromStudentForm()" placeholder="e.g., Laxmikanth Parliament, PSIR Realism, 5 Mains Qs..." class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-blue-500" />
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Topics Covered Today</label>
+            <input type="text" id="formRemarks" placeholder="e.g., Laxmikanth Parliament, PSIR Realism, 5 Mains Qs..." class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
           </div>
 
-          <!-- Footer Actions -->
-          <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
-            <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-              <i class="fa-solid fa-cloud-arrow-up"></i> Synced live with Mentor Matrix & Weekly Delta
-            </span>
-            <div class="flex gap-2">
-              <button type="button" onclick="inspectStudentFromLogger()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition">
-                View My 7-Day Trend
-              </button>
-              <button type="button" onclick="switchMode('matrix'); showToast('Synced! Viewing full 10-student Mentor Matrix.');" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-sm">
-                Mentor Matrix →
-              </button>
-            </div>
+          <!-- Submit Button -->
+          <div class="pt-2">
+            <button type="button" id="studentSubmitBtn" onclick="submitStudentMobileLog()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2">
+              <span>🚀 Submit Daily Log to Mentor Dashboard</span>
+            </button>
+            <p id="studentSubmitStatus" class="text-xs text-center font-semibold text-emerald-600 mt-2 hidden"></p>
           </div>
-        </div>
+        </fieldset>
       </div>
     </section>
 
   </main>
 
   <!-- ==========================================
-       MODAL 1: EDIT BATCH ROSTER (10 STUDENTS)
+       MODAL 1: EDIT BATCH ROSTER & STUDENT PINS
        ========================================== -->
   <div id="rosterModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden">
       <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
         <div>
-          <h3 class="font-bold text-base flex items-center gap-2">
-            <i class="fa-solid fa-users text-emerald-400"></i>
-            <span>Edit Batch Roster (10 Students)</span>
-          </h3>
-          <p class="text-xs text-slate-400 mt-0.5">Update Roll IDs, Student Names, and Optional Subjects for your MANUU CSE cohort.</p>
+          <h3 class="font-bold text-base">Edit Batch Roster & 4-Digit Student PINs (10 Students)</h3>
+          <p class="text-xs text-slate-400">Each student uses their PIN to submit hours from their mobile phone.</p>
         </div>
-        <button onclick="closeRosterModal()" class="text-slate-400 hover:text-white text-xl font-bold px-2">&times;</button>
+        <button onclick="closeRosterModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
       </div>
-
-      <div class="px-5 pt-3 pb-1 bg-slate-100 border-b border-slate-200 grid grid-cols-12 gap-2 text-[11px] font-bold uppercase text-slate-500">
-        <div class="col-span-2">Roll ID</div>
-        <div class="col-span-6">Student Full Name</div>
-        <div class="col-span-4">Optional Subject</div>
+      <div class="px-5 pt-3 pb-1 bg-slate-100 text-[11px] font-bold uppercase text-slate-500 grid grid-cols-12 gap-2">
+        <div class="col-span-2">ID</div>
+        <div class="col-span-4">Student Name</div>
+        <div class="col-span-3">Optional</div>
+        <div class="col-span-3">Mobile PIN</div>
       </div>
-
-      <div class="p-5 max-h-[60vh] overflow-y-auto space-y-2.5" id="rosterInputsContainer">
+      <div class="p-5 max-h-[60vh] overflow-y-auto space-y-2" id="rosterInputsContainer">
         <!-- Populated by JS -->
       </div>
-
-      <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-        <button onclick="resetDefaultRoster()" class="text-xs font-semibold text-slate-500 hover:text-rose-600">
-          Restore Default Names
-        </button>
-        <div class="flex gap-2">
-          <button onclick="closeRosterModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-200 transition">Cancel</button>
-          <button onclick="saveRosterChanges()" class="px-5 py-2 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition">
-            Save Batch Roster
-          </button>
-        </div>
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+        <button onclick="closeRosterModal()" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-200">Cancel</button>
+        <button onclick="saveRosterChanges()" class="px-5 py-2 rounded-lg text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm">Save Roster & PINs</button>
       </div>
     </div>
   </div>
@@ -861,1263 +570,29 @@
     <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
       <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
         <div>
-          <h3 class="font-bold text-base flex items-center gap-2">
-            <i class="fa-solid fa-sliders text-blue-400"></i>
-            <span>Aspirational Cohort KPI Cutoffs</span>
-          </h3>
-          <p class="text-xs text-slate-400 mt-0.5">Configure daily study hour benchmarks (Academy KPI Model)</p>
+          <h3 class="font-bold text-base">Aspirational Cohort KPI Cutoffs</h3>
+          <p class="text-xs text-slate-400">Configure MANUU CSE Academy daily hour benchmarks</p>
         </div>
-        <button onclick="closeKpiModal()" class="text-slate-400 hover:text-white text-xl font-bold px-2">&times;</button>
+        <button onclick="closeKpiModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
       </div>
-
       <div class="p-5 space-y-4 text-sm">
-        <div class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200">
-          <label class="block font-bold text-blue-950 mb-1">🔵 Achiever Minimum Hours</label>
-          <input type="number" id="kpiAchieverInput" step="0.5" min="1" max="18" class="w-full border border-blue-300 rounded-xl px-3 py-2 font-bold bg-white" />
-          <label class="flex items-center gap-2 mt-2 text-xs font-medium text-blue-900 cursor-pointer">
-            <input type="checkbox" id="kpiAchieverTestReq" checked class="rounded text-blue-600 focus:ring-0" />
-            <span>Require at least 1 Mains Q or Prelims MCQ attempt</span>
+        <div>
+          <label class="block font-semibold text-blue-900 mb-1">🔵 Achiever Minimum Hours</label>
+          <input type="number" id="kpiAchieverInput" step="0.5" class="w-full border border-slate-300 rounded-lg px-3 py-2 font-bold" />
+          <label class="flex items-center gap-2 mt-1.5 text-xs text-slate-600">
+            <input type="checkbox" id="kpiAchieverTestReq" checked class="rounded text-blue-600" />
+            Also require at least 1 Mains Q or Prelims MCQ attempt
           </label>
         </div>
-
-        <div class="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200">
-          <label class="block font-bold text-emerald-950 mb-1">🟢 Front Runner Minimum Hours (Academy Target)</label>
-          <input type="number" id="kpiFrontInput" step="0.5" min="1" max="16" class="w-full border border-emerald-300 rounded-xl px-3 py-2 font-bold bg-white" />
+        <div>
+          <label class="block font-semibold text-emerald-800 mb-1">🟢 Front Runner Minimum Hours (Academy Benchmark)</label>
+          <input type="number" id="kpiFrontInput" step="0.5" class="w-full border border-slate-300 rounded-lg px-3 py-2 font-bold" />
         </div>
-
-        <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200">
-          <label class="block font-bold text-amber-950 mb-1">🟡 Performer Minimum Hours</label>
-          <input type="number" id="kpiPerformerInput" step="0.5" min="0.5" max="14" class="w-full border border-amber-300 rounded-xl px-3 py-2 font-bold bg-white" />
-          <p class="text-xs text-amber-800 mt-1.5">Students logging below this threshold are classified as 🔴 <b>Aspirants</b>.</p>
+        <div>
+          <label class="block font-semibold text-amber-800 mb-1">🟡 Performer Minimum Hours</label>
+          <input type="number" id="kpiPerformerInput" step="0.5" class="w-full border border-slate-300 rounded-lg px-3 py-2 font-bold" />
+          <p class="text-xs text-slate-400 mt-1">Anything below Performer cutoff is classified as 🔴 <b>Aspirant</b>.</p>
         </div>
       </div>
-
-      <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
-        <button onclick="closeKpiModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-200 transition">Cancel</button>
-        <button onclick="saveKpiChanges()" class="px-5 py-2 rounded-xl text-sm font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition">
-          Apply KPI Cutoffs
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==========================================
-       APPLICATION LOGIC (PHASE 1 + PHASE 2)
-       ========================================== -->
-  <script>
-    // LocalStorage Keys (v3 includes 14-day history for Phase 2)
-    const STORAGE_KEY_ROSTER = 'manuu_cse_roster_v3';
-    const STORAGE_KEY_LOGS   = 'manuu_cse_logs_v3';
-    const STORAGE_KEY_KPI    = 'manuu_cse_kpi_v3';
-
-    // Default 10 Students for MANUU CSE Academy
-    const defaultRoster = [
-      { id: 'M01', name: 'Aamir Sohail', optional: 'PSIR' },
-      { id: 'M02', name: 'Zainab Fatima', optional: 'Sociology' },
-      { id: 'M03', name: 'Md. Tariq Anwar', optional: 'History' },
-      { id: 'M04', name: 'Ayesha Siddiqua', optional: 'PSIR' },
-      { id: 'M05', name: 'Salman Khurshid', optional: 'Urdu Lit' },
-      { id: 'M06', name: 'Nida Parveen', optional: 'Anthropology' },
-      { id: 'M07', name: 'Farhan Ahmed', optional: 'Geography' },
-      { id: 'M08', name: 'Sanaullah Khan', optional: 'PSIR' },
-      { id: 'M09', name: 'Bushra Rehman', optional: 'Public Admin' },
-      { id: 'M10', name: 'Rizwan Ali', optional: 'Urdu Lit' }
-    ];
-
-    // Default MANUU Aspirational Cohort Cutoffs
-    let kpiConfig = {
-      achieverMin: 9.5,
-      achieverRequireTest: true,
-      frontRunnerMin: 8.0,
-      performerMin: 5.5
-    };
-
-    let roster = [];
-    let allLogs = {}; // { 'YYYY-MM-DD': { 'M01': { status, gs, opt, mainsHrs, mainsQs, prelimsHrs, prelimsMCQs, csat, remarks } } }
-    let currentMode = 'matrix';
-
-    // Show non-intrusive toast message
-    function showToast(message) {
-      const banner = document.getElementById('toastBanner');
-      const msgEl = document.getElementById('toastMessage');
-      msgEl.textContent = message;
-      banner.classList.remove('hidden');
-      clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => {
-        banner.classList.add('hidden');
-      }, 2800);
-    }
-
-    function toggleExportMenu() {
-      const menu = document.getElementById('exportDropdown');
-      menu.classList.toggle('hidden');
-    }
-
-    // Helper: Format Date Offset from a given YYYY-MM-DD string
-    function getOffsetDateStr(baseDateStr, offsetDays) {
-      const d = new Date(baseDateStr + 'T00:00:00');
-      d.setDate(d.getDate() + offsetDays);
-      return d.toISOString().split('T')[0];
-    }
-
-    // Initialize Application on Load
-    function initApp() {
-      try {
-        const savedRoster = localStorage.getItem(STORAGE_KEY_ROSTER);
-        roster = savedRoster ? JSON.parse(savedRoster) : JSON.parse(JSON.stringify(defaultRoster));
-
-        const savedKpi = localStorage.getItem(STORAGE_KEY_KPI);
-        if (savedKpi) kpiConfig = JSON.parse(savedKpi);
-
-        const savedLogs = localStorage.getItem(STORAGE_KEY_LOGS);
-        allLogs = savedLogs ? JSON.parse(savedLogs) : {};
-      } catch (e) {
-        roster = JSON.parse(JSON.stringify(defaultRoster));
-        allLogs = {};
-      }
-
-      // Set Default Date to 2026-10-18
-      const dateInput = document.getElementById('activeDate');
-      const defaultDate = '2026-10-18';
-      dateInput.value = defaultDate;
-
-      // Ensure 14-day history is seeded if storage is empty so Phase 2 analytics shine immediately
-      if (Object.keys(allLogs).length < 7) {
-        seed14DayHistory(false);
-      }
-
-      dateInput.addEventListener('change', () => {
-        renderAll();
-      });
-
-      populateStudentDropdowns();
-      renderAll();
-    }
-
-    // Shift date by -1 or +1 day
-    function shiftDate(deltaDays) {
-      const dateInput = document.getElementById('activeDate');
-      dateInput.value = getOffsetDateStr(dateInput.value, deltaDays);
-      renderAll();
-    }
-
-    // Blank student record template
-    function getEmptyEntry() {
-      return {
-        status: 'Present',
-        gs: 0,
-        opt: 0,
-        mainsHrs: 0,
-        mainsQs: 0,
-        prelimsHrs: 0,
-        prelimsMCQs: 0,
-        csat: 0,
-        remarks: ''
-      };
-    }
-
-    // ==========================================
-    // 14-DAY REALISTIC UPSC COHORT HISTORY GENERATOR
-    // Designed so each student exhibits realistic UPSC patterns (Delta surges, Optional neglect, CSAT blindspots, etc.)
-    // ==========================================
-    function seed14DayHistory(notify = true) {
-      const anchorDate = document.getElementById('activeDate').value || '2026-10-18';
-
-      // Archetype profiles for the 10 students across Prev 7 Days (days -13 to -7) vs Curr 7 Days (days -6 to 0)
-      const profiles = {
-        // M01: Consistent Achiever
-        'M01': { prev: [4.0, 2.5, 1.5, 5, 1.0, 40, 0.5], curr: [4.0, 2.5, 1.5, 5, 1.0, 45, 1.0], note: 'Polity Committees + PSIR Paper 2' },
-        // M02: Strong Front Runner surging into Achiever (+1.8h/day surge!)
-        'M02': { prev: [3.0, 2.0, 0.5, 2, 1.0, 30, 0.5], curr: [4.0, 2.5, 1.0, 4, 1.5, 50, 0.5], note: 'Sociology Thinkers + Spectrum Modern History' },
-        // M03: Mains Answer Writing Drought (0 Mains Qs in last 4 days) & CSAT strong
-        'M03': { prev: [3.5, 2.0, 1.0, 3, 1.0, 30, 1.0], curr: [4.0, 2.5, 0.0, 0, 1.0, 35, 1.0], note: 'Covered Economy Banking; skipped Mains writing' },
-        // M04: Top Achiever Benchmark Setter
-        'M04': { prev: [4.0, 3.0, 1.5, 5, 1.0, 40, 0.5], curr: [4.5, 3.0, 1.5, 6, 1.0, 45, 0.5], note: 'Full GS-2 revision + 6 Mains answers' },
-        // M05: Most Improved Delta Rank #1 (+2.4h/day surge from Aspirant to Front Runner!)
-        'M05': { prev: [2.5, 1.5, 0.5, 1, 0.5, 15, 0.5], curr: [3.5, 2.5, 1.0, 4, 1.0, 35, 0.5], note: 'Big turnaround this week: Urdu Lit + Ethics' },
-        // M06: CSAT Blindspot (0h CSAT all 7 days, otherwise solid Front Runner)
-        'M06': { prev: [3.5, 2.5, 1.0, 3, 1.0, 30, 0.0], curr: [4.0, 2.5, 1.0, 4, 1.0, 35, 0.0], note: 'Tribal India notes + Environment PYQs (No CSAT)' },
-        // M07: Burnout / Consistency Drop Alert (Dropped from 8.0h last week to 4.5h this week)
-        'M07': { prev: [3.5, 2.5, 1.0, 3, 0.5, 20, 0.5], curr: [2.5, 1.0, 0.0, 0, 0.5, 15, 0.5], note: 'Low output since mid-week; needs 1-on-1 call' },
-        // M08: Optional Neglect Warning (<2h Optional in last 4 days, over-indexing on GS)
-        'M08': { prev: [3.5, 2.0, 1.0, 3, 1.0, 25, 0.5], curr: [5.0, 0.0, 1.0, 4, 1.0, 30, 1.0], note: 'Focused heavily on GS Polity; neglected Optional' },
-        // M09: Performer recovering from mid-week medical leave
-        'M09': { prev: [3.0, 2.0, 0.5, 2, 1.0, 25, 0.5], curr: [3.0, 2.0, 0.5, 2, 0.5, 20, 0.5], note: 'Public Admin Paper 1 + GS-3 Agriculture' },
-        // M10: Steady Performer (6.5h/day) needing push to 8h
-        'M10': { prev: [3.0, 1.5, 0.5, 2, 0.5, 20, 0.5], curr: [3.0, 1.5, 0.5, 2, 1.0, 30, 0.5], note: 'CSAT Quant + Medieval India revision' }
-      };
-
-      for (let offset = -13; offset <= 0; offset++) {
-        const dStr = getOffsetDateStr(anchorDate, offset);
-        allLogs[dStr] = {};
-        const isCurrentWeek = offset >= -6;
-
-        roster.forEach((student, sIdx) => {
-          const p = profiles[student.id] || profiles['M01'];
-          const base = isCurrentWeek ? p.curr : p.prev;
-
-          // Slight deterministic daily variation so charts look organic
-          const wave = ((offset + sIdx) % 3 === 0) ? 0.5 : (((offset + sIdx) % 4 === 0) ? -0.5 : 0);
-
-          // Special case: M09 on Leave on anchorDate
-          if (student.id === 'M09' && offset === 0) {
-            allLogs[dStr][student.id] = {
-              status: 'Leave', gs: 0, opt: 0, mainsHrs: 0, mainsQs: 0, prelimsHrs: 0, prelimsMCQs: 0, csat: 0,
-              remarks: 'Approved home visit leave'
-            };
-            return;
-          }
-
-          const gsVal = Math.max(0.5, +(base[0] + wave).toFixed(1));
-          // Keep M08 Optional at 0 for last 4 days to trigger Optional Neglect warning clearly
-          const optVal = (student.id === 'M08' && offset >= -3) ? 0.0 : Math.max(0, +(base[1] + (offset % 2 === 0 ? 0 : -0.5)).toFixed(1));
-          const mainsH = base[2];
-          const mainsQ = base[3] > 0 ? Math.max(1, base[3] + (offset % 2)) : 0;
-          const prelimsH = base[4];
-          const prelimsM = base[5] > 0 ? Math.max(10, base[5] + ((offset % 3) * 5)) : 0;
-          const csatVal = base[6];
-
-          allLogs[dStr][student.id] = {
-            status: 'Present',
-            gs: gsVal,
-            opt: optVal,
-            mainsHrs: mainsH,
-            mainsQs: mainsQ,
-            prelimsHrs: prelimsH,
-            prelimsMCQs: prelimsM,
-            csat: csatVal,
-            remarks: p.note
-          };
-        });
-      }
-
-      saveLogsToStorage();
-      renderAll();
-      if (notify) {
-        showToast('Seeded 14 days of cohort history! Check Tab 2 for Weekly Delta & Warnings.');
-      }
-    }
-
-    function loadDemoData() {
-      seed14DayHistory(true);
-    }
-
-    function clearDayLogs() {
-      const dateStr = document.getElementById('activeDate').value;
-      allLogs[dateStr] = {};
-      roster.forEach(s => { allLogs[dateStr][s.id] = getEmptyEntry(); });
-      saveLogsToStorage();
-      renderAll();
-      showToast(`Reset all student logs for ${dateStr}`);
-    }
-
-    function saveLogsToStorage() {
-      try {
-        localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(allLogs));
-      } catch (e) {
-        console.error('Storage error:', e);
-      }
-    }
-
-    function getDayLogForStudent(dateStr, studentId) {
-      if (!allLogs[dateStr]) allLogs[dateStr] = {};
-      if (!allLogs[dateStr][studentId]) {
-        allLogs[dateStr][studentId] = getEmptyEntry();
-      }
-      return allLogs[dateStr][studentId];
-    }
-
-    function computeTotalHours(entry) {
-      return +(
-        (parseFloat(entry.gs) || 0) +
-        (parseFloat(entry.opt) || 0) +
-        (parseFloat(entry.mainsHrs) || 0) +
-        (parseFloat(entry.prelimsHrs) || 0) +
-        (parseFloat(entry.csat) || 0)
-      ).toFixed(1);
-    }
-
-    // MANUU Aspirational Cohort Tier Classifier (Single Day or Rolling Avg)
-    function classifyStudent(entry) {
-      const total = computeTotalHours(entry);
-      const hasTestActivity = (
-        (parseFloat(entry.mainsHrs) || 0) > 0 ||
-        (parseInt(entry.mainsQs) || 0) > 0 ||
-        (parseFloat(entry.prelimsHrs) || 0) > 0 ||
-        (parseInt(entry.prelimsMCQs) || 0) > 0
-      );
-
-      if (entry.status !== 'Present' && total === 0) {
-        return {
-          tier: 'On Leave',
-          badgeClass: 'bg-slate-100 text-slate-600 border border-slate-300',
-          dot: '⚪',
-          hint: 'Marked on leave / medical rest'
-        };
-      }
-
-      const passesTestReq = !kpiConfig.achieverRequireTest || hasTestActivity;
-
-      if (total >= kpiConfig.achieverMin && passesTestReq) {
-        return {
-          tier: 'Achiever',
-          badgeClass: 'bg-blue-100 text-blue-800 border border-blue-300',
-          dot: '🔵',
-          hint: 'Top tier! Exceeding hours + active testing'
-        };
-      } else if (total >= kpiConfig.frontRunnerMin) {
-        return {
-          tier: 'Front Runner',
-          badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-300',
-          dot: '🟢',
-          hint: total >= kpiConfig.achieverMin && !passesTestReq
-            ? 'Log at least 1 Mains Q or Prelims MCQ to reach Achiever!'
-            : `${(kpiConfig.achieverMin - total).toFixed(1)}h more (+ test) for Achiever`
-        };
-      } else if (total >= kpiConfig.performerMin) {
-        return {
-          tier: 'Performer',
-          badgeClass: 'bg-amber-100 text-amber-800 border border-amber-300',
-          dot: '🟡',
-          hint: `${(kpiConfig.frontRunnerMin - total).toFixed(1)}h more to reach Front Runner (8h target)`
-        };
-      } else {
-        return {
-          tier: 'Aspirant',
-          badgeClass: 'bg-rose-100 text-rose-800 border border-rose-300',
-          dot: '🔴',
-          hint: `${(kpiConfig.frontRunnerMin - total).toFixed(1)}h needed to hit daily 8h target`
-        };
-      }
-    }
-
-    // Classify 7-Day Rolling Performance
-    function classifyRollingAvg(avgHours, total7DayTests) {
-      const passesTest = !kpiConfig.achieverRequireTest || total7DayTests > 0;
-      if (avgHours >= kpiConfig.achieverMin && passesTest) {
-        return { tier: 'Achiever', badgeClass: 'bg-blue-100 text-blue-800 border border-blue-300', dot: '🔵' };
-      } else if (avgHours >= kpiConfig.frontRunnerMin) {
-        return { tier: 'Front Runner', badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-300', dot: '🟢' };
-      } else if (avgHours >= kpiConfig.performerMin) {
-        return { tier: 'Performer', badgeClass: 'bg-amber-100 text-amber-800 border border-amber-300', dot: '🟡' };
-      } else {
-        return { tier: 'Aspirant', badgeClass: 'bg-rose-100 text-rose-800 border border-rose-300', dot: '🔴' };
-      }
-    }
-
-    // Master Render Function
-    function renderAll() {
-      const dateStr = document.getElementById('activeDate').value;
-      document.getElementById('matrixDateBadge').textContent = dateStr;
-      updateKpiHeaderLabels();
-      renderMatrixTable();
-      loadStudentIntoForm();
-      updateSummaryAndFooter();
-      renderPhase2Analytics();
-    }
-
-    function updateKpiHeaderLabels() {
-      document.getElementById('targetLabel').textContent = kpiConfig.frontRunnerMin.toFixed(1);
-      document.getElementById('formTargetHours').textContent = kpiConfig.frontRunnerMin.toFixed(1);
-      document.getElementById('cutoffAchieverLabel').textContent = `≥${kpiConfig.achieverMin}h` + (kpiConfig.achieverRequireTest ? ' + Test' : '');
-      document.getElementById('cutoffFrontLabel').textContent = `${kpiConfig.frontRunnerMin}–${(kpiConfig.achieverMin - 0.1).toFixed(1)}h`;
-      document.getElementById('cutoffPerformerLabel').textContent = `${kpiConfig.performerMin}–${(kpiConfig.frontRunnerMin - 0.1).toFixed(1)}h`;
-      document.getElementById('cutoffAspirantLabel').textContent = `<${kpiConfig.performerMin}h`;
-    }
-
-    // Render 10-Student Mentor Matrix Table
-    function renderMatrixTable() {
-      const dateStr = document.getElementById('activeDate').value;
-      const tbody = document.getElementById('matrixTableBody');
-      tbody.innerHTML = '';
-
-      roster.forEach((student) => {
-        const entry = getDayLogForStudent(dateStr, student.id);
-        const total = computeTotalHours(entry);
-        const tierObj = classifyStudent(entry);
-
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50/90 transition group';
-        tr.innerHTML = `
-          <td class="py-2.5 px-3 font-mono text-xs font-semibold text-slate-400">${student.id}</td>
-          <td class="py-2.5 px-3">
-            <div class="font-bold text-slate-800 leading-tight cursor-pointer hover:text-indigo-600 flex items-center gap-1" onclick="inspectStudent('${student.id}')" title="Click to inspect 7-day trend & WhatsApp report">
-              <span>${student.name}</span>
-              <i class="fa-solid fa-chart-line text-[10px] text-slate-300 group-hover:text-indigo-500"></i>
-            </div>
-            <div class="text-[11px] font-semibold text-purple-700">${student.optional}</div>
-          </td>
-          <td class="py-2.5 px-2 text-center">
-            <select onchange="updateCell('${student.id}', 'status', this.value)" class="text-xs border border-slate-300 rounded-lg px-1.5 py-1 bg-white font-semibold text-slate-700 focus:outline-none focus:border-blue-500">
-              <option value="Present" ${entry.status === 'Present' ? 'selected' : ''}>Present</option>
-              <option value="Leave" ${entry.status === 'Leave' ? 'selected' : ''}>Leave</option>
-              <option value="Sick" ${entry.status === 'Sick' ? 'selected' : ''}>Sick</option>
-            </select>
-          </td>
-          <td class="py-2.5 px-2 text-center bg-indigo-50/25 border-l border-slate-100">
-            <input type="number" step="0.5" min="0" max="18" value="${entry.gs}"
-              oninput="updateCell('${student.id}', 'gs', this.value)" class="matrix-input" />
-          </td>
-          <td class="py-2.5 px-2 text-center bg-purple-50/25">
-            <input type="number" step="0.5" min="0" max="18" value="${entry.opt}"
-              oninput="updateCell('${student.id}', 'opt', this.value)" class="matrix-input" />
-          </td>
-          <td class="py-2.5 px-2 text-center bg-teal-50/30 border-l border-slate-100">
-            <div class="flex items-center justify-center gap-1.5">
-              <input type="number" step="0.5" min="0" max="12" value="${entry.mainsHrs}"
-                oninput="updateCell('${student.id}', 'mainsHrs', this.value)" class="matrix-input" title="Mains Test Hours" />
-              <input type="number" step="1" min="0" max="60" value="${entry.mainsQs}"
-                oninput="updateCell('${student.id}', 'mainsQs', this.value)" class="sub-input" title="Mains Questions Written" placeholder="Qs" />
-            </div>
-          </td>
-          <td class="py-2.5 px-2 text-center bg-cyan-50/30 border-l border-slate-100">
-            <div class="flex items-center justify-center gap-1.5">
-              <input type="number" step="0.5" min="0" max="12" value="${entry.prelimsHrs}"
-                oninput="updateCell('${student.id}', 'prelimsHrs', this.value)" class="matrix-input" title="Prelims Test Hours" />
-              <input type="number" step="5" min="0" max="300" value="${entry.prelimsMCQs}"
-                oninput="updateCell('${student.id}', 'prelimsMCQs', this.value)" class="sub-input" title="Prelims MCQs Solved" placeholder="MCQs" />
-            </div>
-          </td>
-          <td class="py-2.5 px-2 text-center bg-amber-50/25 border-l border-slate-100">
-            <input type="number" step="0.5" min="0" max="12" value="${entry.csat}"
-              oninput="updateCell('${student.id}', 'csat', this.value)" class="matrix-input" />
-          </td>
-          <td class="py-2.5 px-3 text-center border-l border-slate-100">
-            <span id="rowTotal_${student.id}" class="font-extrabold text-base ${total >= kpiConfig.frontRunnerMin ? 'text-emerald-700' : (total < kpiConfig.performerMin ? 'text-rose-600' : 'text-slate-800')}">
-              ${total.toFixed(1)}h
-            </span>
-          </td>
-          <td class="py-2.5 px-3 text-center">
-            <span id="rowTier_${student.id}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${tierObj.badgeClass}">
-              <span>${tierObj.dot}</span> <span>${tierObj.tier}</span>
-            </span>
-          </td>
-          <td class="py-2.5 px-3">
-            <input type="text" value="${(entry.remarks || '').replace(/"/g, '&quot;')}" placeholder="Topics covered / mentor note..."
-              oninput="updateCell('${student.id}', 'remarks', this.value)"
-              class="w-full text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-blue-500 bg-slate-50/70 focus:bg-white" />
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    // Live cell update without losing cursor focus
-    function updateCell(studentId, field, value) {
-      const dateStr = document.getElementById('activeDate').value;
-      const entry = getDayLogForStudent(dateStr, studentId);
-
-      if (['gs', 'opt', 'mainsHrs', 'prelimsHrs', 'csat'].includes(field)) {
-        entry[field] = Math.max(0, parseFloat(value) || 0);
-      } else if (['mainsQs', 'prelimsMCQs'].includes(field)) {
-        entry[field] = Math.max(0, parseInt(value) || 0);
-      } else {
-        entry[field] = value;
-      }
-
-      saveLogsToStorage();
-
-      // Update row's Total & Tier badge in-place
-      const total = computeTotalHours(entry);
-      const tierObj = classifyStudent(entry);
-
-      const totalEl = document.getElementById(`rowTotal_${studentId}`);
-      if (totalEl) {
-        totalEl.textContent = `${total.toFixed(1)}h`;
-        totalEl.className = `font-extrabold text-base ${total >= kpiConfig.frontRunnerMin ? 'text-emerald-700' : (total < kpiConfig.performerMin ? 'text-rose-600' : 'text-slate-800')}`;
-      }
-
-      const tierEl = document.getElementById(`rowTier_${studentId}`);
-      if (tierEl) {
-        tierEl.className = `inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${tierObj.badgeClass}`;
-        tierEl.innerHTML = `<span>${tierObj.dot}</span> <span>${tierObj.tier}</span>`;
-      }
-
-      updateSummaryAndFooter();
-      renderPhase2Analytics();
-    }
-
-    // Update Top KPI Summary Cards & Matrix Footer Totals
-    function updateSummaryAndFooter() {
-      const dateStr = document.getElementById('activeDate').value;
-      let sumTotal = 0, sumGS = 0, sumOpt = 0, sumMainsH = 0, sumMainsQ = 0, sumPrelimsH = 0, sumPrelimsM = 0, sumCSAT = 0;
-      let activeCount = 0;
-      let counts = { Achiever: 0, 'Front Runner': 0, Performer: 0, Aspirant: 0 };
-
-      const n = roster.length || 1;
-
-      roster.forEach(s => {
-        const e = getDayLogForStudent(dateStr, s.id);
-        const total = computeTotalHours(e);
-        const tierObj = classifyStudent(e);
-
-        if (total > 0) activeCount++;
-        sumTotal += total;
-        sumGS += parseFloat(e.gs) || 0;
-        sumOpt += parseFloat(e.opt) || 0;
-        sumMainsH += parseFloat(e.mainsHrs) || 0;
-        sumMainsQ += parseInt(e.mainsQs) || 0;
-        sumPrelimsH += parseFloat(e.prelimsHrs) || 0;
-        sumPrelimsM += parseInt(e.prelimsMCQs) || 0;
-        sumCSAT += parseFloat(e.csat) || 0;
-
-        if (counts[tierObj.tier] !== undefined) {
-          counts[tierObj.tier]++;
-        }
-      });
-
-      // Top KPI Cards
-      document.getElementById('statAvgHours').textContent = `${(sumTotal / n).toFixed(1)}h`;
-      document.getElementById('statLoggedCount').textContent = `${activeCount} of ${roster.length} logged`;
-      document.getElementById('statTotalQs').textContent = `${sumMainsQ} Qs • ${sumPrelimsM} MCQs`;
-
-      document.getElementById('countAchiever').textContent = counts['Achiever'];
-      document.getElementById('countFrontRunner').textContent = counts['Front Runner'];
-      document.getElementById('countPerformer').textContent = counts['Performer'];
-      document.getElementById('countAspirant').textContent = counts['Aspirant'];
-
-      // Matrix Footer Averages
-      document.getElementById('footAvgGS').textContent = `${(sumGS / n).toFixed(1)}h avg`;
-      document.getElementById('footAvgOpt').textContent = `${(sumOpt / n).toFixed(1)}h avg`;
-      document.getElementById('footMains').textContent = `${(sumMainsH / n).toFixed(1)}h | ${sumMainsQ} Qs`;
-      document.getElementById('footPrelims').textContent = `${(sumPrelimsH / n).toFixed(1)}h | ${sumPrelimsM} MCQs`;
-      document.getElementById('footAvgCSAT').textContent = `${(sumCSAT / n).toFixed(1)}h avg`;
-      document.getElementById('footAvgTotal').textContent = `${(sumTotal / n).toFixed(1)}h avg`;
-    }
-
-    // ==========================================
-    // PHASE 2 ENGINE: 7-DAY ROLLING ANALYTICS, WEEKLY DELTA & NEGLECT RADAR
-    // ==========================================
-    function computeStudent14DayMetrics(student, anchorDateStr) {
-      let curr7Total = 0, prev7Total = 0;
-      let currGS = 0, currOpt = 0, currMainsH = 0, currPrelimsH = 0, currCSAT = 0;
-      let currMainsQs = 0, currPrelimsMCQs = 0;
-      let daysMetTarget = 0;
-      let last4OptHrs = 0;
-      let last4MainsQs = 0;
-      let last2DaysLow = 0;
-
-      const dailySeries = []; // Oldest to newest (offset -6 to 0)
-
-      // Previous 7 days: offset -13 to -7
-      for (let off = -13; off <= -7; off++) {
-        const dStr = getOffsetDateStr(anchorDateStr, off);
-        const e = getDayLogForStudent(dStr, student.id);
-        prev7Total += computeTotalHours(e);
-      }
-
-      // Current 7 days: offset -6 to 0
-      for (let off = -6; off <= 0; off++) {
-        const dStr = getOffsetDateStr(anchorDateStr, off);
-        const e = getDayLogForStudent(dStr, student.id);
-        const dayTot = computeTotalHours(e);
-
-        curr7Total += dayTot;
-        currGS += parseFloat(e.gs) || 0;
-        currOpt += parseFloat(e.opt) || 0;
-        currMainsH += parseFloat(e.mainsHrs) || 0;
-        currPrelimsH += parseFloat(e.prelimsHrs) || 0;
-        currCSAT += parseFloat(e.csat) || 0;
-        currMainsQs += parseInt(e.mainsQs) || 0;
-        currPrelimsMCQs += parseInt(e.prelimsMCQs) || 0;
-
-        if (dayTot >= kpiConfig.frontRunnerMin) daysMetTarget++;
-
-        if (off >= -3) {
-          last4OptHrs += parseFloat(e.opt) || 0;
-          last4MainsQs += parseInt(e.mainsQs) || 0;
-        }
-        if (off >= -1 && dayTot < kpiConfig.performerMin && e.status === 'Present') {
-          last2DaysLow++;
-        }
-
-        dailySeries.push({
-          date: dStr,
-          shortLabel: dStr.slice(5), // MM-DD
-          entry: e,
-          total: dayTot
-        });
-      }
-
-      const currAvg = +(curr7Total / 7).toFixed(1);
-      const prevAvg = +(prev7Total / 7).toFixed(1);
-      const delta = +(currAvg - prevAvg).toFixed(1);
-
-      // Generate Automated Mentorship Warnings
-      const warnings = [];
-      if (last4OptHrs < 2.0) {
-        warnings.push({
-          type: 'Optional Neglect',
-          color: 'bg-purple-100 text-purple-800 border-purple-300',
-          icon: 'fa-book-open',
-          detail: `Only ${last4OptHrs.toFixed(1)}h Optional in last 4 days`
-        });
-      }
-      if (last4MainsQs === 0) {
-        warnings.push({
-          type: 'Answer Drought',
-          color: 'bg-teal-100 text-teal-900 border-teal-300',
-          icon: 'fa-pen-slash',
-          detail: '0 Mains Qs written in last 4 days'
-        });
-      }
-      if (currCSAT === 0) {
-        warnings.push({
-          type: 'CSAT Blindspot',
-          color: 'bg-amber-100 text-amber-900 border-amber-300',
-          icon: 'fa-calculator',
-          detail: '0h CSAT logged across all 7 days'
-        });
-      }
-      if (delta <= -1.5 || last2DaysLow === 2) {
-        warnings.push({
-          type: 'Burnout / Slump',
-          color: 'bg-rose-100 text-rose-800 border-rose-300',
-          icon: 'fa-bolt-lightning',
-          detail: delta <= -1.5 ? `Dropped ${delta}h/day vs last week` : '2 consecutive Aspirant (<5.5h) days'
-        });
-      }
-
-      const rollingTier = classifyRollingAvg(currAvg, currMainsQs + currPrelimsMCQs);
-
-      return {
-        student,
-        curr7Total: +curr7Total.toFixed(1),
-        currAvg,
-        prevAvg,
-        delta,
-        daysMetTarget,
-        currGS: +currGS.toFixed(1),
-        currOpt: +currOpt.toFixed(1),
-        currMainsH: +currMainsH.toFixed(1),
-        currPrelimsH: +currPrelimsH.toFixed(1),
-        currCSAT: +currCSAT.toFixed(1),
-        currMainsQs,
-        currPrelimsMCQs,
-        warnings,
-        rollingTier,
-        dailySeries
-      };
-    }
-
-    function renderPhase2Analytics() {
-      const anchorDate = document.getElementById('activeDate').value;
-      const startCurr = getOffsetDateStr(anchorDate, -6);
-      const startPrev = getOffsetDateStr(anchorDate, -13);
-      const endPrev   = getOffsetDateStr(anchorDate, -7);
-
-      document.getElementById('currWindowLabel').textContent = `${startCurr} to ${anchorDate}`;
-      document.getElementById('prevWindowLabel').textContent = `${startPrev} to ${endPrev}`;
-
-      const metricsList = roster.map(s => computeStudent14DayMetrics(s, anchorDate));
-
-      // Identify Delta Rank #1 (Highest positive improvement)
-      const sortedByDelta = [...metricsList].sort((a, b) => b.delta - a.delta || b.currAvg - a.currAvg);
-      const topDeltaStudent = sortedByDelta[0];
-
-      if (topDeltaStudent) {
-        document.getElementById('deltaTopStudentName').textContent = `${topDeltaStudent.student.name} (${topDeltaStudent.student.id})`;
-        document.getElementById('deltaTopStudentSub').textContent = `Optional: ${topDeltaStudent.student.optional} • Tier: ${topDeltaStudent.rollingTier.tier}`;
-        document.getElementById('deltaTopCurrAvg').textContent = `${topDeltaStudent.currAvg.toFixed(1)}h/day`;
-        document.getElementById('deltaTopPrevAvg').textContent = `${topDeltaStudent.prevAvg.toFixed(1)}h/day`;
-        const sign = topDeltaStudent.delta >= 0 ? '+' : '';
-        document.getElementById('deltaTopBadge').textContent = `${sign}${topDeltaStudent.delta.toFixed(1)}h/day ${topDeltaStudent.delta >= 0 ? '▲' : '▼'}`;
-      }
-
-      // Compute 7-Day Batch Totals
-      let batchMainsQs = 0, batchPrelimsMCQs = 0, batchAvgSum = 0;
-      let allWarningsList = [];
-
-      metricsList.forEach(m => {
-        batchMainsQs += m.currMainsQs;
-        batchPrelimsMCQs += m.currPrelimsMCQs;
-        batchAvgSum += m.currAvg;
-        m.warnings.forEach(w => {
-          allWarningsList.push({ studentName: m.student.name, studentId: m.student.id, ...w });
-        });
-      });
-
-      document.getElementById('weeklyCohortMainsQs').textContent = batchMainsQs;
-      document.getElementById('weeklyCohortPrelimsMCQs').textContent = batchPrelimsMCQs;
-      document.getElementById('weeklyCohortAvgHrs').textContent = `${(batchAvgSum / (roster.length || 1)).toFixed(1)}h / day`;
-
-      // Update Radar Badge Count
-      document.getElementById('radarAlertCountBadge').textContent = allWarningsList.length;
-      document.getElementById('totalWarningsPill').textContent = `${allWarningsList.length} Active Alerts`;
-
-      const radarContainer = document.getElementById('compactRadarSummary');
-      radarContainer.innerHTML = '';
-      if (allWarningsList.length === 0) {
-        radarContainer.innerHTML = `<div class="text-xs text-emerald-700 bg-emerald-50 p-2.5 rounded-xl font-semibold">🎉 Zero neglect or burnout warnings across the batch!</div>`;
-      } else {
-        allWarningsList.forEach(w => {
-          const item = document.createElement('div');
-          item.className = 'flex items-center justify-between text-xs bg-slate-50 hover:bg-slate-100 p-2 rounded-lg border border-slate-200 cursor-pointer transition';
-          item.onclick = () => inspectStudent(w.studentId);
-          item.innerHTML = `
-            <div class="flex items-center gap-2">
-              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold border ${w.color}">${w.type}</span>
-              <span class="font-bold text-slate-800">${w.studentName}</span>
-            </div>
-            <span class="text-[11px] text-slate-500">${w.detail}</span>
-          `;
-          radarContainer.appendChild(item);
-        });
-      }
-
-      // Sort Leaderboard by 7-Day Rolling Avg Descending
-      const leaderboard = [...metricsList].sort((a, b) => b.currAvg - a.currAvg);
-      const tbody = document.getElementById('deltaTableBody');
-      tbody.innerHTML = '';
-
-      leaderboard.forEach((m, idx) => {
-        const isDeltaWinner = topDeltaStudent && m.student.id === topDeltaStudent.student.id && m.delta > 0;
-        const deltaColor = m.delta > 0 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : (m.delta < 0 ? 'text-rose-700 bg-rose-50 border-rose-200' : 'text-slate-600 bg-slate-100 border-slate-200');
-        const deltaSign = m.delta > 0 ? '+' : '';
-        const deltaArrow = m.delta > 0 ? '▲' : (m.delta < 0 ? '▼' : '•');
-
-        const warningsHtml = m.warnings.length === 0
-          ? `<span class="text-xs font-semibold text-emerald-600"><i class="fa-solid fa-check mr-1"></i>Balanced All-Round</span>`
-          : m.warnings.map(w => `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold border ${w.color} mr-1 mb-1" title="${w.detail}">${w.type}</span>`).join('');
-
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-indigo-50/40 transition cursor-pointer';
-        tr.onclick = () => renderStudentDeepDive(m.student.id);
-
-        tr.innerHTML = `
-          <td class="py-3 px-3 text-center font-extrabold text-slate-700">
-            #${idx + 1}
-          </td>
-          <td class="py-3 px-3">
-            <div class="flex items-center gap-1.5 flex-wrap">
-              <span class="font-bold text-slate-900">${m.student.name}</span>
-              ${isDeltaWinner ? `<span class="text-[10px] font-extrabold bg-emerald-600 text-white px-2 py-0.5 rounded-full shadow-2xs">🚀 Delta #1</span>` : ''}
-            </div>
-            <div class="text-[11px] text-purple-700 font-semibold">${m.student.id} • ${m.student.optional}</div>
-          </td>
-          <td class="py-3 px-3 text-center bg-indigo-50/30">
-            <span class="text-base font-extrabold text-slate-900">${m.currAvg.toFixed(1)}h</span>
-            <span class="block text-[10px] text-slate-400">${m.curr7Total}h total</span>
-          </td>
-          <td class="py-3 px-3 text-center font-semibold text-slate-500">
-            ${m.prevAvg.toFixed(1)}h
-          </td>
-          <td class="py-3 px-3 text-center bg-emerald-50/20">
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-extrabold border ${deltaColor}">
-              ${deltaSign}${m.delta.toFixed(1)}h ${deltaArrow}
-            </span>
-          </td>
-          <td class="py-3 px-3 text-center">
-            <span class="font-bold text-xs ${m.daysMetTarget >= 5 ? 'text-emerald-700' : 'text-slate-700'}">${m.daysMetTarget} / 7 days</span>
-          </td>
-          <td class="py-3 px-3 text-center font-bold text-teal-800">
-            ${m.currMainsQs} Qs
-          </td>
-          <td class="py-3 px-3 text-center font-bold text-cyan-800">
-            ${m.currPrelimsMCQs} MCQs
-          </td>
-          <td class="py-3 px-3 text-center">
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${m.rollingTier.badgeClass}">
-              <span>${m.rollingTier.dot}</span> <span>${m.rollingTier.tier}</span>
-            </span>
-          </td>
-          <td class="py-3 px-3">
-            ${warningsHtml}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      // Render Deep Dive for currently selected student
-      const currentSelected = document.getElementById('deepDiveStudentSelect').value || roster[0].id;
-      renderStudentDeepDive(currentSelected);
-    }
-
-    // Jump to Analytics Tab & Inspect Specific Student
-    function inspectStudent(studentId) {
-      document.getElementById('deepDiveStudentSelect').value = studentId;
-      switchMode('analytics');
-      renderStudentDeepDive(studentId);
-      document.getElementById('studentDeepDiveCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    function inspectStudentFromLogger() {
-      const sId = document.getElementById('studentSelectDropdown').value;
-      inspectStudent(sId);
-    }
-
-    // Render Student 7-Day Deep-Dive Chart, Subject Split & WhatsApp Report
-    function renderStudentDeepDive(studentId) {
-      const anchorDate = document.getElementById('activeDate').value;
-      const student = roster.find(s => s.id === studentId) || roster[0];
-      document.getElementById('deepDiveStudentSelect').value = student.id;
-      document.getElementById('deepDiveStudentName').textContent = `${student.name} (${student.optional})`;
-
-      const m = computeStudent14DayMetrics(student, anchorDate);
-
-      // Update Tier Badge
-      const badgeEl = document.getElementById('deepDiveTierBadge');
-      badgeEl.className = `px-3 py-1 rounded-full text-xs font-bold ${m.rollingTier.badgeClass}`;
-      badgeEl.textContent = `${m.rollingTier.dot} 7-Day ${m.rollingTier.tier}`;
-
-      // Position 8.0h Target Reference Line on 14h scale
-      const maxScale = 14;
-      const targetPct = Math.min(95, Math.round((kpiConfig.frontRunnerMin / maxScale) * 100));
-      const targetLine = document.getElementById('deepDiveTargetLine');
-      targetLine.style.bottom = `${targetPct}%`;
-      targetLine.innerHTML = `<span class="bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded -mt-2.5 mr-1 shadow-xs">${kpiConfig.frontRunnerMin.toFixed(1)}h Target</span>`;
-
-      // Render 7 Stacked Bars
-      const barsContainer = document.getElementById('deepDiveBarsContainer');
-      barsContainer.innerHTML = '';
-
-      m.dailySeries.forEach(day => {
-        const e = day.entry;
-        const tot = day.total;
-        const heightPct = Math.min(100, Math.round((tot / maxScale) * 100));
-
-        // Segment percentages inside the bar
-        const gsP = tot > 0 ? (e.gs / tot) * 100 : 0;
-        const optP = tot > 0 ? (e.opt / tot) * 100 : 0;
-        const mainsP = tot > 0 ? (e.mainsHrs / tot) * 100 : 0;
-        const prelimsP = tot > 0 ? (e.prelimsHrs / tot) * 100 : 0;
-        const csatP = tot > 0 ? (e.csat / tot) * 100 : 0;
-
-        const col = document.createElement('div');
-        col.className = 'flex-1 h-full flex flex-col justify-end items-center group relative';
-        col.innerHTML = `
-          <!-- Hover Tooltip -->
-          <div class="opacity-0 group-hover:opacity-100 transition pointer-events-none absolute -top-7 bg-slate-900 text-white text-[10px] font-semibold px-2 py-1 rounded shadow-md whitespace-nowrap z-30">
-            ${day.shortLabel}: ${tot.toFixed(1)}h (GS:${e.gs} Opt:${e.opt} M:${e.mainsHrs} P:${e.prelimsHrs} C:${e.csat})
-          </div>
-          <span class="text-[11px] font-extrabold ${tot >= kpiConfig.frontRunnerMin ? 'text-emerald-700' : 'text-slate-600'} mb-1">${tot.toFixed(1)}h</span>
-          <div class="w-full max-w-[44px] bg-slate-200/70 rounded-t-lg overflow-hidden flex flex-col-reverse transition-all duration-300 shadow-xs" style="height: ${Math.max(4, heightPct)}%;">
-            <div style="height:${gsP}%" class="bg-indigo-500 w-full"></div>
-            <div style="height:${optP}%" class="bg-purple-500 w-full"></div>
-            <div style="height:${mainsP}%" class="bg-teal-500 w-full"></div>
-            <div style="height:${prelimsP}%" class="bg-cyan-500 w-full"></div>
-            <div style="height:${csatP}%" class="bg-amber-500 w-full"></div>
-          </div>
-          <span class="text-[10px] font-bold text-slate-500 mt-1.5">${day.shortLabel}</span>
-        `;
-        barsContainer.appendChild(col);
-      });
-
-      // Render 7-Day Subject Split Distribution
-      document.getElementById('deepDiveTotal7DayHrs').textContent = `${m.curr7Total.toFixed(1)} hrs total in 7 days (${m.currAvg.toFixed(1)}h/day)`;
-      const tot7 = m.curr7Total || 1;
-      const pctGS = Math.round((m.currGS / tot7) * 100);
-      const pctOpt = Math.round((m.currOpt / tot7) * 100);
-      const pctMains = Math.round((m.currMainsH / tot7) * 100);
-      const pctPrelims = Math.round((m.currPrelimsH / tot7) * 100);
-      const pctCSAT = Math.max(0, 100 - (pctGS + pctOpt + pctMains + pctPrelims));
-
-      document.getElementById('deepDiveSubjectSplitBar').innerHTML = `
-        <div class="bg-indigo-500 h-full" style="width:${pctGS}%"></div>
-        <div class="bg-purple-500 h-full" style="width:${pctOpt}%"></div>
-        <div class="bg-teal-500 h-full" style="width:${pctMains}%"></div>
-        <div class="bg-cyan-500 h-full" style="width:${pctPrelims}%"></div>
-        <div class="bg-amber-500 h-full" style="width:${pctCSAT}%"></div>
-      `;
-
-      document.getElementById('deepDiveSubjectSplitLegend').innerHTML = `
-        <div class="bg-white p-2 rounded-lg border border-slate-200">
-          <span class="text-[10px] text-slate-400 font-bold block">GS SHARE</span>
-          <span class="font-extrabold text-indigo-700">${m.currGS}h (${pctGS}%)</span>
-        </div>
-        <div class="bg-white p-2 rounded-lg border border-slate-200">
-          <span class="text-[10px] text-slate-400 font-bold block">OPTIONAL</span>
-          <span class="font-extrabold text-purple-700">${m.currOpt}h (${pctOpt}%)</span>
-        </div>
-        <div class="bg-white p-2 rounded-lg border border-slate-200">
-          <span class="text-[10px] text-slate-400 font-bold block">MAINS TEST</span>
-          <span class="font-extrabold text-teal-700">${m.currMainsH}h (${m.currMainsQs} Qs)</span>
-        </div>
-        <div class="bg-white p-2 rounded-lg border border-slate-200">
-          <span class="text-[10px] text-slate-400 font-bold block">PRELIMS TEST</span>
-          <span class="font-extrabold text-cyan-700">${m.currPrelimsH}h (${m.currPrelimsMCQs} MCQs)</span>
-        </div>
-        <div class="bg-white p-2 rounded-lg border border-slate-200 col-span-2 sm:col-span-1">
-          <span class="text-[10px] text-slate-400 font-bold block">CSAT</span>
-          <span class="font-extrabold text-amber-700">${m.currCSAT}h (${pctCSAT}%)</span>
-        </div>
-      `;
-
-      // Render Student Warnings Box
-      const warnBox = document.getElementById('deepDiveWarningsBox');
-      if (m.warnings.length === 0) {
-        warnBox.innerHTML = `
-          <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
-            <i class="fa-solid fa-circle-check text-emerald-600"></i>
-            <span>Balanced 7-day preparation across GS, Optional, Tests & CSAT!</span>
-          </div>
-        `;
-      } else {
-        warnBox.innerHTML = m.warnings.map(w => `
-          <div class="p-2.5 rounded-xl border ${w.color} text-xs font-semibold flex items-center justify-between">
-            <span><i class="fa-solid ${w.icon} mr-1.5"></i><b>${w.type}:</b> ${w.detail}</span>
-          </div>
-        `).join('');
-      }
-
-      // Generate Personalized WhatsApp Mentorship Review Message
-      const deltaSign = m.delta >= 0 ? '+' : '';
-      const warningLines = m.warnings.length > 0
-        ? m.warnings.map(w => `⚠️ *${w.type}*: ${w.detail}`).join('\n')
-        : `✅ *Subject Balance*: Strong consistency across GS, ${student.optional}, and Practice Tests.`;
-
-      const waMessage =
-`*MANUU CSE Academy — Weekly Mentorship Review*
-👤 *Aspirant*: ${student.name} (${student.id} | Optional: ${student.optional})
-📅 *7-Day Period Ending*: ${anchorDate}
-
-📊 *Aspirational Cohort Tier*: ${m.rollingTier.dot} *${m.rollingTier.tier}*
-⏱️ *7-Day Avg Study Hours*: *${m.currAvg.toFixed(1)} hrs/day* (Total: ${m.curr7Total}h)
-📈 *Weekly Delta (Δ)*: *${deltaSign}${m.delta.toFixed(1)}h/day* vs last week (${m.prevAvg.toFixed(1)}h)
-🎯 *8h Target Consistency*: Met on *${m.daysMetTarget} of 7 days*
-
-✍️ *Practice Output (7 Days)*:
-• Mains Questions Written: *${m.currMainsQs} Qs* (${m.currMainsH}h)
-• Prelims MCQs Solved: *${m.currPrelimsMCQs} MCQs* (${m.currPrelimsH}h)
-• GS: ${m.currGS}h | Optional: ${m.currOpt}h | CSAT: ${m.currCSAT}h
-
-🔍 *Mentor Diagnostic*:
-${warningLines}
-
-💡 *Next Week Target*: Aim for ${Math.max(8.0, +(m.currAvg + 0.5).toFixed(1))}h/day with daily answer writing.`;
-
-      document.getElementById('whatsappFeedbackText').value = waMessage;
-    }
-
-    // Copy WhatsApp Mentorship Report to Clipboard
-    function copyWhatsAppReport() {
-      const textarea = document.getElementById('whatsappFeedbackText');
-      textarea.select();
-      textarea.setSelectionRange(0, 99999);
-      try {
-        document.execCommand('copy');
-        showToast('Copied personalized WhatsApp mentorship report to clipboard!');
-      } catch (err) {
-        showToast('Please press Ctrl+C / Cmd+C to copy the selected text.');
-      }
-    }
-
-    // ==========================================
-    // STUDENT QUICK-LOGGER FUNCTIONS
-    // ==========================================
-    function populateStudentDropdowns() {
-      const select1 = document.getElementById('studentSelectDropdown');
-      const select2 = document.getElementById('deepDiveStudentSelect');
-      const cur1 = select1.value;
-      const cur2 = select2.value;
-
-      select1.innerHTML = '';
-      select2.innerHTML = '';
-
-      roster.forEach(s => {
-        const opt1 = document.createElement('option');
-        opt1.value = s.id;
-        opt1.textContent = `${s.id} — ${s.name} (Optional: ${s.optional})`;
-        select1.appendChild(opt1);
-
-        const opt2 = document.createElement('option');
-        opt2.value = s.id;
-        opt2.textContent = `${s.id} — ${s.name} (${s.optional})`;
-        select2.appendChild(opt2);
-      });
-
-      if (cur1 && roster.some(s => s.id === cur1)) select1.value = cur1;
-      if (cur2 && roster.some(s => s.id === cur2)) select2.value = cur2;
-    }
-
-    function openStudentInMobileLogger(studentId) {
-      document.getElementById('studentSelectDropdown').value = studentId;
-      switchMode('student');
-    }
-
-    function loadStudentIntoForm() {
-      const dateStr = document.getElementById('activeDate').value;
-      document.getElementById('studentViewDateBadge').textContent = `Date: ${dateStr}`;
-
-      const selectEl = document.getElementById('studentSelectDropdown');
-      const studentId = selectEl.value || roster[0].id;
-      const studentObj = roster.find(s => s.id === studentId) || roster[0];
-      const entry = getDayLogForStudent(dateStr, studentId);
-
-      document.getElementById('formStudentOptName').textContent = studentObj.optional;
-      document.getElementById('formStatus').value = entry.status || 'Present';
-      document.getElementById('formGS').value = entry.gs;
-      document.getElementById('formOpt').value = entry.opt;
-      document.getElementById('formMainsHrs').value = entry.mainsHrs;
-      document.getElementById('formMainsQs').value = entry.mainsQs;
-      document.getElementById('formPrelimsHrs').value = entry.prelimsHrs;
-      document.getElementById('formPrelimsMCQs').value = entry.prelimsMCQs;
-      document.getElementById('formCSAT').value = entry.csat;
-      document.getElementById('formRemarks').value = entry.remarks || '';
-
-      updateStudentFormProgress(entry);
-    }
-
-    function stepFormValue(fieldKey, delta) {
-      const map = {
-        gs: 'formGS',
-        opt: 'formOpt',
-        mainsHrs: 'formMainsHrs',
-        prelimsHrs: 'formPrelimsHrs',
-        csat: 'formCSAT'
-      };
-      const input = document.getElementById(map[fieldKey]);
-      let val = parseFloat(input.value) || 0;
-      val = Math.max(0, +(val + delta).toFixed(1));
-      input.value = val;
-      saveFromStudentForm();
-    }
-
-    function stepSubField(inputId, delta) {
-      const input = document.getElementById(inputId);
-      let val = parseInt(input.value) || 0;
-      val = Math.max(0, val + delta);
-      input.value = val;
-      saveFromStudentForm();
-    }
-
-    function saveFromStudentForm() {
-      const dateStr = document.getElementById('activeDate').value;
-      const studentId = document.getElementById('studentSelectDropdown').value;
-      const entry = getDayLogForStudent(dateStr, studentId);
-
-      entry.status = document.getElementById('formStatus').value;
-      entry.gs = Math.max(0, parseFloat(document.getElementById('formGS').value) || 0);
-      entry.opt = Math.max(0, parseFloat(document.getElementById('formOpt').value) || 0);
-      entry.mainsHrs = Math.max(0, parseFloat(document.getElementById('formMainsHrs').value) || 0);
-      entry.mainsQs = Math.max(0, parseInt(document.getElementById('formMainsQs').value) || 0);
-      entry.prelimsHrs = Math.max(0, parseFloat(document.getElementById('formPrelimsHrs').value) || 0);
-      entry.prelimsMCQs = Math.max(0, parseInt(document.getElementById('formPrelimsMCQs').value) || 0);
-      entry.csat = Math.max(0, parseFloat(document.getElementById('formCSAT').value) || 0);
-      entry.remarks = document.getElementById('formRemarks').value;
-
-      saveLogsToStorage();
-      updateStudentFormProgress(entry);
-      renderMatrixTable();
-      updateSummaryAndFooter();
-      renderPhase2Analytics();
-    }
-
-    function updateStudentFormProgress(entry) {
-      const total = computeTotalHours(entry);
-      const tierObj = classifyStudent(entry);
-
-      document.getElementById('formTotalHours').textContent = `${total.toFixed(1)} hrs`;
-      const badge = document.getElementById('formTierBadge');
-      badge.className = `px-3 py-1 rounded-full text-xs font-bold ${tierObj.badgeClass}`;
-      badge.textContent = `${tierObj.dot} ${tierObj.tier}`;
-
-      document.getElementById('formTierHint').textContent = tierObj.hint || '';
-
-      const denom = Math.max(kpiConfig.achieverMin, total, 8);
-      document.getElementById('barGS').style.width = `${(entry.gs / denom) * 100}%`;
-      document.getElementById('barOpt').style.width = `${(entry.opt / denom) * 100}%`;
-      document.getElementById('barMains').style.width = `${(entry.mainsHrs / denom) * 100}%`;
-      document.getElementById('barPrelims').style.width = `${(entry.prelimsHrs / denom) * 100}%`;
-      document.getElementById('barCSAT').style.width = `${(entry.csat / denom) * 100}%`;
-    }
-
-    // ==========================================
-    // MODE SWITCHING & MODALS
-    // ==========================================
-    function switchMode(mode) {
-      currentMode = mode;
-      const matrixView = document.getElementById('matrixView');
-      const analyticsView = document.getElementById('analyticsView');
-      const studentView = document.getElementById('studentView');
-
-      const tabMatrixBtn = document.getElementById('tabMatrixBtn');
-      const tabAnalyticsBtn = document.getElementById('tabAnalyticsBtn');
-      const tabStudentBtn = document.getElementById('tabStudentBtn');
-
-      const activeClass = 'flex-1 lg:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-slate-900 text-white shadow-xs transition flex items-center justify-center gap-2';
-      const inactiveClass = 'flex-1 lg:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-2';
-
-      matrixView.classList.add('hidden');
-      analyticsView.classList.add('hidden');
-      studentView.classList.add('hidden');
-
-      tabMatrixBtn.className = inactiveClass;
-      tabAnalyticsBtn.className = inactiveClass;
-      tabStudentBtn.className = inactiveClass;
-
-      if (mode === 'matrix') {
-        matrixView.classList.remove('hidden');
-        tabMatrixBtn.className = activeClass;
-      } else if (mode === 'analytics') {
-        analyticsView.classList.remove('hidden');
-        tabAnalyticsBtn.className = activeClass;
-        renderPhase2Analytics();
-      } else {
-        studentView.classList.remove('hidden');
-        tabStudentBtn.className = activeClass;
-        loadStudentIntoForm();
-      }
-    }
-
-    function openRosterModal() {
-      const container = document.getElementById('rosterInputsContainer');
-      container.innerHTML = '';
-      roster.forEach((s, index) => {
-        const row = document.createElement('div');
-        row.className = 'grid grid-cols-12 gap-2 items-center bg-slate-50 p-2 rounded-xl border border-slate-200';
-        row.innerHTML = `
-          <div class="col-span-2">
-            <input type="text" id="rosterId_${index}" value="${s.id}" readonly class="w-full text-xs font-mono font-bold border border-slate-200 rounded-lg px-2 py-1.5 bg-slate-100 text-slate-500" />
-          </div>
-          <div class="col-span-6">
-            <input type="text" id="rosterName_${index}" value="${s.name}" class="w-full text-sm font-semibold border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:border-emerald-500" placeholder="Student Name" />
-          </div>
-          <div class="col-span-4">
-            <input type="text" id="rosterOpt_${index}" value="${s.optional}" class="w-full text-xs font-semibold border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:border-purple-500" placeholder="Optional Subject" />
-          </div>
-        `;
-        container.appendChild(row);
-      });
-      document.getElementById('rosterModal').classList.remove('hidden');
-      document.getElementById('rosterModal').classList.add('flex');
-    }
-
-    function closeRosterModal() {
-      document.getElementById('rosterModal').classList.add('hidden');
-      document.getElementById('rosterModal').classList.remove('flex');
-    }
-
-    function saveRosterChanges() {
-      roster.forEach((s, index) => {
-        s.name = document.getElementById(`rosterName_${index}`).value.trim() || s.name;
-        s.optional = document.getElementById(`rosterOpt_${index}`).value.trim() || s.optional;
-      });
-      localStorage.setItem(STORAGE_KEY_ROSTER, JSON.stringify(roster));
-      populateStudentDropdowns();
-      renderAll();
-      closeRosterModal();
-      showToast('Updated 10-student MANUU CSE batch roster!');
-    }
-
-    function resetDefaultRoster() {
-      roster = JSON.parse(JSON.stringify(defaultRoster));
-      localStorage.setItem(STORAGE_KEY_ROSTER, JSON.stringify(roster));
-      openRosterModal();
-      populateStudentDropdowns();
-      renderAll();
-      showToast('Restored default batch roster.');
-    }
-
-    function openKpiModal() {
-      document.getElementById('kpiAchieverInput').value = kpiConfig.achieverMin;
-      document.getElementById('kpiAchieverTestReq').checked = kpiConfig.achieverRequireTest;
-      document.getElementById('kpiFrontInput').value = kpiConfig.frontRunnerMin;
-      document.getElementById('kpiPerformerInput').value = kpiConfig.performerMin;
-      document.getElementById('kpiModal').classList.remove('hidden');
-      document.getElementById('kpiModal').classList.add('flex');
-    }
-
-    function closeKpiModal() {
-      document.getElementById('kpiModal').classList.add('hidden');
-      document.getElementById('kpiModal').classList.remove('flex');
-    }
-
-    function saveKpiChanges() {
-      kpiConfig.achieverMin = parseFloat(document.getElementById('kpiAchieverInput').value) || 9.5;
-      kpiConfig.achieverRequireTest = document.getElementById('kpiAchieverTestReq').checked;
-      kpiConfig.frontRunnerMin = parseFloat(document.getElementById('kpiFrontInput').value) || 8.0;
-      kpiConfig.performerMin = parseFloat(document.getElementById('kpiPerformerInput').value) || 5.5;
-      localStorage.setItem(STORAGE_KEY_KPI, JSON.stringify(kpiConfig));
-      renderAll();
-      closeKpiModal();
-      showToast('Updated Aspirational Cohort KPI cutoffs!');
-    }
-
-    // Export Selected Single Day's Matrix to CSV
-    function exportCSV() {
-      const dateStr = document.getElementById('activeDate').value;
-      const rows = [
-        ['Date', 'Roll_ID', 'Student_Name', 'Optional', 'Status', 'GS_Hrs', 'Optional_Hrs', 'Mains_Test_Hrs', 'Mains_Qs_Written', 'Prelims_Test_Hrs', 'Prelims_MCQs_Solved', 'CSAT_Hrs', 'Total_Hrs', 'Aspirational_Tier', 'Remarks']
-      ];
-
-      roster.forEach(s => {
-        const e = getDayLogForStudent(dateStr, s.id);
-        const total = computeTotalHours(e);
-        const tierObj = classifyStudent(e);
-        rows.push([
-          dateStr,
-          s.id,
-          `"${s.name.replace(/"/g, '""')}"`,
-          `"${s.optional.replace(/"/g, '""')}"`,
-          e.status,
-          e.gs,
-          e.opt,
-          e.mainsHrs,
-          e.mainsQs,
-          e.prelimsHrs,
-          e.prelimsMCQs,
-          e.csat,
-          total,
-          tierObj.tier,
-          `"${(e.remarks || '').replace(/"/g, '""')}"`
-        ]);
-      });
-
-      const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(r => r.join(',')).join('\n');
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
-      link.setAttribute('download', `MANUU_CSE_DailyLog_${dateStr}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast(`Exported single-day CSV for ${dateStr}`);
-    }
-
-    // Export 7-Day Rolling Leaderboard & Weekly Delta Report to CSV
-    function exportWeeklyCSV() {
-      const anchorDate = document.getElementById('activeDate').value;
-      const rows = [
-        ['End_Date', 'Roll_ID', 'Student_Name', 'Optional', '7Day_Avg_Hrs', 'Prev_7Day_Avg_Hrs', 'Weekly_Delta_Hrs', 'Days_Met_8h_Target', '7Day_Total_Hrs', '7Day_Mains_Qs', '7Day_Prelims_MCQs', '7Day_Rolling_Tier', 'Active_Warnings']
-      ];
-
-      const metricsList = roster.map(s => computeStudent14DayMetrics(s, anchorDate))
-        .sort((a, b) => b.currAvg - a.currAvg);
-
-      metricsList.forEach(m => {
-        const warnText = m.warnings.map(w => `${w.type} (${w.detail})`).join('; ') || 'None';
-        rows.push([
-          anchorDate,
-          m.student.id,
-          `"${m.student.name.replace(/"/g, '""')}"`,
-          `"${m.student.optional.replace(/"/g, '""')}"`,
-          m.currAvg,
-          m.prevAvg,
-          m.delta,
-          `${m.daysMetTarget}/7`,
-          m.curr7Total,
-          m.currMainsQs,
-          m.currPrelimsMCQs,
-          m.rollingTier.tier,
-          `"${warnText.replace(/"/g, '""')}"`
-        ]);
-      });
-
-      const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(r => r.join(',')).join('\n');
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
-      link.setAttribute('download', `MANUU_CSE_WeeklyDelta_${anchorDate}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast(`Exported 7-Day Weekly Delta CSV ending ${anchorDate}`);
-    }
-
-    window.onload = function () {
-      initApp();
-    };
-  </script>
-</body>
-</html>
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+        <button onclick="closeKpiModal()" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-200">
