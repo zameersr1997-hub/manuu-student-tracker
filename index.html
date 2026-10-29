@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MANUU CSE Academy | Secure Student & Mentor Cohort Dashboard</title>
+  <title>MANUU CSE Academy | Secure 15-Student Cohort Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -62,11 +62,11 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="font-bold text-base sm:text-lg leading-tight">MANUU CSE Academy</h1>
-            <span id="roleHeaderBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              🛡️ Mentor Admin Mode
+            <span id="roleHeaderBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              📱 Student / Public Portal (15 Slots)
             </span>
           </div>
-          <p class="text-xs text-slate-400">Mentor Cohort Tracker • Secure Role-Based Access Control</p>
+          <p class="text-xs text-slate-400">Mentor Cohort Tracker • Fully Editable 15-Student Roster</p>
         </div>
       </div>
 
@@ -87,7 +87,7 @@
         </button>
 
         <button type="button" id="rosterBtn" onclick="openRosterModal()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1.5 transition cursor-pointer">
-          <span>👥 Roster & PINs (10)</span>
+          <span>👥 Edit 15-Student Roster</span>
         </button>
 
         <button type="button" id="exportCsvBtn" onclick="exportCSV()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition shadow-sm cursor-pointer">
@@ -108,7 +108,7 @@
           <span id="statAvgHours" class="text-2xl font-bold text-slate-900">0.0h</span>
           <span class="text-xs text-slate-500">/ <span id="targetLabel">8.0</span>h target</span>
         </div>
-        <div id="statLoggedCount" class="mt-1 text-xs text-slate-500">0 of 10 logged</div>
+        <div id="statLoggedCount" class="mt-1 text-xs text-slate-500">0 of 15 logged</div>
       </div>
 
       <div class="bg-blue-50/70 p-4 rounded-xl border border-blue-200 shadow-sm">
@@ -154,11 +154,11 @@
         <button type="button" id="tabStudentBtn" onclick="switchMode('student')" class="px-4 py-2 rounded-md text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer">
           📱 1. Student Check-In & Cohort View
         </button>
-        <button type="button" id="tabMatrixBtn" onclick="switchMode('matrix')" class="px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
-          📋 2. Mentor Admin Matrix
-        </button>
         <button type="button" id="tabAnalyticsBtn" onclick="switchMode('analytics')" class="px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
-          📈 3. Weekly Delta (Δ) Analytics
+          📈 2. Weekly Delta (Δ) Analytics
+        </button>
+        <button type="button" id="tabMatrixBtn" onclick="switchMode('matrix')" class="px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer hidden">
+          📋 3. Mentor Admin Matrix
         </button>
       </div>
 
@@ -169,7 +169,7 @@
       </div>
     </div>
 
-    <!-- MODE 1: SECURE STUDENT PORTAL & BATCH VIEW -->
+    <!-- MODE 1: STUDENT PORTAL & COHORT VIEW (15 SLOTS) -->
     <section id="studentView" class="space-y-6">
       <div class="max-w-xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
         <div class="bg-slate-900 text-white p-5">
@@ -178,20 +178,20 @@
             <span id="studentViewDateBadge" class="text-xs bg-slate-800 px-2.5 py-1 rounded text-slate-300"></span>
           </div>
           <h2 class="text-lg font-bold mt-1">Submit Your Daily UPSC Study Hours</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Select your name, enter your unique 4-digit PIN, and log your hours securely.</p>
+          <p class="text-xs text-slate-400 mt-0.5">Select your editable name slot (1 to 15), enter your PIN, and log your hours.</p>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
             <div class="sm:col-span-2">
-              <label class="block text-xs text-slate-300 mb-1 font-medium">1. Select Your Name</label>
+              <label class="block text-xs text-slate-300 mb-1 font-medium">1. Select Your Name Slot</label>
               <select id="studentSelectDropdown" onchange="onStudentMobileChange()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2.5 text-sm font-semibold focus:outline-none focus:border-emerald-400"></select>
             </div>
             <div>
-              <label class="block text-xs text-slate-300 mb-1 font-medium">2. Your 4-Digit PIN</label>
+              <label class="block text-xs text-slate-300 mb-1 font-medium">2. Your PIN</label>
               <input type="password" id="studentPinInput" maxlength="6" oninput="verifyStudentPinLive()" placeholder="••••" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm font-mono font-bold text-center tracking-widest focus:outline-none focus:border-emerald-400" />
             </div>
           </div>
           <div id="pinHintBanner" class="mt-2 text-[11px] text-amber-300">
-            <span id="pinStatusText">🔒 Enter your assigned 4-digit student PIN to unlock entry.</span>
+            <span id="pinStatusText">🔒 Enter your assigned student PIN to unlock entry.</span>
           </div>
         </div>
 
@@ -345,7 +345,7 @@
             <h3 class="font-bold text-slate-800 text-sm">📊 Cohort Progress Board (Read-Only)</h3>
             <p class="text-xs text-slate-500">See how your batchmates are performing today. (You cannot edit others' entries).</p>
           </div>
-          <span class="text-xs font-semibold text-slate-500 bg-white px-2.5 py-1 rounded border border-slate-200">10 Aspirants</span>
+          <span class="text-xs font-semibold text-slate-500 bg-white px-2.5 py-1 rounded border border-slate-200">15 Aspirants</span>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
@@ -514,26 +514,26 @@
 
   </main>
 
-  <!-- MODAL 1: EDIT BATCH ROSTER & STUDENT PINS -->
+  <!-- MODAL 1: EDIT 15-STUDENT ROSTER & EDITABLE NAMES & PINS -->
   <div id="rosterModal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden">
       <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
         <div>
-          <h3 class="font-bold text-base">Edit Batch Roster & 4-Digit Student PINs (10 Students)</h3>
-          <p class="text-xs text-slate-400">Each student uses their PIN to submit hours from their mobile phone.</p>
+          <h3 class="font-bold text-base">Edit 15-Student Roster (Editable Names, Optionals & PINs)</h3>
+          <p class="text-xs text-slate-400">Anyone can edit names here, or protect with Mentor PIN.</p>
         </div>
         <button type="button" onclick="closeRosterModal()" class="text-slate-400 hover:text-white text-xl font-bold cursor-pointer">&times;</button>
       </div>
       <div class="px-5 pt-3 pb-1 bg-slate-100 text-[11px] font-bold uppercase text-slate-500 grid grid-cols-12 gap-2">
         <div class="col-span-2">ID</div>
-        <div class="col-span-4">Student Name</div>
+        <div class="col-span-4">Student Name (Editable)</div>
         <div class="col-span-3">Optional</div>
-        <div class="col-span-3">Mobile PIN</div>
+        <div class="col-span-3">PIN</div>
       </div>
       <div class="p-5 max-h-[60vh] overflow-y-auto space-y-2" id="rosterInputsContainer"></div>
       <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
         <button type="button" onclick="closeRosterModal()" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-200 cursor-pointer">Cancel</button>
-        <button type="button" onclick="saveRosterChanges()" class="px-5 py-2 rounded-lg text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm cursor-pointer">Save Roster & PINs</button>
+        <button type="button" onclick="saveRosterChanges()" class="px-5 py-2 rounded-lg text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm cursor-pointer">Save 15 Roster Slots</button>
       </div>
     </div>
   </div>
@@ -543,7 +543,7 @@
     <div class="bg-white rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden">
       <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
         <div>
-          <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Secure Architecture</span>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Cloud Sync Architecture</span>
           <h3 class="font-bold text-base sm:text-lg">Google Sheets Live Webhook Hub</h3>
           <p class="text-xs text-slate-400">Paste your Google Sheet Web App URL below and click Save & Sync Now.</p>
         </div>
@@ -566,7 +566,7 @@
 
           <div class="bg-white p-3 rounded-lg border border-emerald-200 flex flex-wrap items-center justify-between gap-2">
             <div class="text-xs text-slate-600">
-              <b>📱 Share with Students:</b> After pasting your Google Sheet URL above, click this button to copy a magic link for your 10 students!
+              <b>📱 Share with Students:</b> After pasting your Google Sheet URL above, click this button to copy a magic link for your 15 students!
             </div>
             <button type="button" onclick="copyStudentMagicLink()" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-lg cursor-pointer shrink-0">
               🔗 Copy Student Link
@@ -587,23 +587,28 @@
   </div>
 
   <script>
-    const STORAGE_KEY_ROSTER = 'manuu_cse_roster_v4';
-    const STORAGE_KEY_LOGS   = 'manuu_cse_logs_v4';
-    const STORAGE_KEY_SYNC   = 'manuu_cse_sync_v4';
+    const STORAGE_KEY_ROSTER = 'manuu_cse_roster_v15_v1';
+    const STORAGE_KEY_LOGS   = 'manuu_cse_logs_v15_v1';
+    const STORAGE_KEY_SYNC   = 'manuu_cse_sync_v15_v1';
 
     const PREBAKED_SHEET_URL = '';
 
-    const defaultRoster = [
-      { id: 'M01', name: 'Aamir Sohail',    optional: 'PSIR',         pin: '1001' },
-      { id: 'M02', name: 'Zainab Fatima',   optional: 'Sociology',    pin: '1002' },
-      { id: 'M03', name: 'Md. Tariq Anwar', optional: 'History',      pin: '1003' },
-      { id: 'M04', name: 'Ayesha Siddiqua', optional: 'PSIR',         pin: '1004' },
-      { id: 'M05', name: 'Salman Khurshid', optional: 'Urdu Lit',     pin: '1005' },
-      { id: 'M06', name: 'Nida Parveen',    optional: 'Anthropology', pin: '1006' },
-      { id: 'M07', name: 'Farhan Ahmed',    optional: 'Geography',    pin: '1007' },
-      { id: 'M08', name: 'Sanaullah Khan',  optional: 'PSIR',         pin: '1008' },
-      { id: 'M09', name: 'Bushra Rehman',   optional: 'Public Admin', pin: '1009' },
-      { id: 'M10', name: 'Rizwan Ali',      optional: 'Urdu Lit',     pin: '1010' }
+    const defaultRoster15 = [
+      { id: 'M01', name: 'Student 1',     optional: 'PSIR',         pin: '1001' },
+      { id: 'M02', name: 'Student 2',     optional: 'Sociology',    pin: '1002' },
+      { id: 'M03', name: 'Student 3',     optional: 'History',      pin: '1003' },
+      { id: 'M04', name: 'Student 4',     optional: 'PSIR',         pin: '1004' },
+      { id: 'M05', name: 'Student 5',     optional: 'Urdu Lit',     pin: '1005' },
+      { id: 'M06', name: 'Student 6',     optional: 'Anthropology', pin: '1006' },
+      { id: 'M07', name: 'Student 7',     optional: 'Geography',    pin: '1007' },
+      { id: 'M08', name: 'Student 8',     optional: 'PSIR',         pin: '1008' },
+      { id: 'M09', name: 'Student 9',     optional: 'Public Admin', pin: '1009' },
+      { id: 'M10', name: 'Student 10',    optional: 'Urdu Lit',     pin: '1010' },
+      { id: 'M11', name: 'Student 11',    optional: 'Political Sci',pin: '1011' },
+      { id: 'M12', name: 'Student 12',    optional: 'Economics',    pin: '1012' },
+      { id: 'M13', name: 'Student 13',    optional: 'Philosophy',   pin: '1013' },
+      { id: 'M14', name: 'Student 14',    optional: 'Pub Admin',    pin: '1014' },
+      { id: 'M15', name: 'Student 15',    optional: 'History',      pin: '1015' }
     ];
 
     let kpiConfig = { achieverMin: 9.5, achieverRequireTest: true, frontRunnerMin: 8.0, performerMin: 5.5 };
@@ -615,8 +620,7 @@
 
     function initApp() {
       const savedRoster = localStorage.getItem(STORAGE_KEY_ROSTER);
-      roster = savedRoster ? JSON.parse(savedRoster) : JSON.parse(JSON.stringify(defaultRoster));
-      roster.forEach((s, idx) => { if (!s.pin) s.pin = String(1001 + idx); });
+      roster = savedRoster ? JSON.parse(savedRoster) : JSON.parse(JSON.stringify(defaultRoster15));
 
       const savedSync = localStorage.getItem(STORAGE_KEY_SYNC);
       if (savedSync) syncConfig = JSON.parse(savedSync);
@@ -668,12 +672,8 @@
         document.getElementById('mentorPinBtn').textContent = '🛡️ Mentor Active';
         document.getElementById('mentorPinBtn').className = 'bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm';
         
-        const tabContainer = document.getElementById('mainTabContainer');
-        tabContainer.innerHTML = `
-          <button type="button" id="tabStudentBtn" onclick="switchMode('student')" class="px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">📱 1. Student Check-In & Cohort View</button>
-          <button type="button" id="tabMatrixBtn" onclick="switchMode('matrix')" class="px-4 py-2 rounded-md text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer">📋 2. Mentor Admin Matrix</button>
-          <button type="button" id="tabAnalyticsBtn" onclick="switchMode('analytics')" class="px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">📈 3. Weekly Delta (Δ) Analytics</button>
-        `;
+        // Show Mentor Matrix tab
+        document.getElementById('tabMatrixBtn').classList.remove('hidden');
         switchMode('matrix');
       } else if (pass !== null) {
         alert('Incorrect Mentor PIN.');
@@ -682,15 +682,12 @@
 
     function setStudentModeUI() {
       isMentorAdmin = false;
-      document.getElementById('roleHeaderBadge').textContent = '📱 Student Mode (Secure)';
+      document.getElementById('roleHeaderBadge').textContent = '📱 Student / Public Portal (15 Slots)';
       document.getElementById('roleHeaderBadge').className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30';
       document.getElementById('mentorPinBtn').textContent = '🔐 Mentor Mode (PIN Protected)';
       document.getElementById('mentorPinBtn').className = 'bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer shadow-sm';
       
-      const tabContainer = document.getElementById('mainTabContainer');
-      tabContainer.innerHTML = `
-        <button type="button" id="tabStudentBtn" onclick="switchMode('student')" class="px-4 py-2 rounded-md text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer">📱 Student Check-In & Cohort View</button>
-      `;
+      document.getElementById('tabMatrixBtn').classList.add('hidden');
       switchMode('student');
     }
 
@@ -706,38 +703,24 @@
 
     function seed14DayHistory(rerender = true) {
       const todayStr = document.getElementById('activeDate').value || new Date().toISOString().split('T')[0];
-      const profiles = {
-        'M01': { baseGS: 4.0, baseOpt: 2.5, mainsH: 1.5, mainsQ: 5, prelH: 1.0, prelM: 40, csat: 1.0 },
-        'M02': { baseGS: 3.5, baseOpt: 2.5, mainsH: 1.0, mainsQ: 4, prelH: 1.5, prelM: 50, csat: 0.5 },
-        'M03': { baseGS: 4.0, baseOpt: 2.0, mainsH: 0.0, mainsQ: 0, prelH: 1.0, prelM: 35, csat: 1.0 },
-        'M04': { baseGS: 4.5, baseOpt: 3.0, mainsH: 1.5, mainsQ: 6, prelH: 1.0, prelM: 45, csat: 0.5 },
-        'M05': { baseGS: 2.5, baseOpt: 1.5, mainsH: 0.5, mainsQ: 2, prelH: 1.0, prelM: 25, csat: 0.5 },
-        'M06': { baseGS: 3.5, baseOpt: 2.5, mainsH: 1.0, mainsQ: 4, prelH: 1.0, prelM: 30, csat: 0.0 },
-        'M07': { baseGS: 3.5, baseOpt: 2.0, mainsH: 1.0, mainsQ: 3, prelH: 1.0, prelM: 25, csat: 0.5 },
-        'M08': { baseGS: 4.0, baseOpt: 0.0, mainsH: 1.5, mainsQ: 5, prelH: 1.5, prelM: 45, csat: 1.0 },
-        'M09': { baseGS: 3.0, baseOpt: 2.0, mainsH: 1.0, mainsQ: 3, prelH: 1.0, prelimsMCQs: 30, csat: 0.5 },
-        'M10': { baseGS: 3.0, baseOpt: 2.0, mainsH: 0.5, mainsQ: 2, prelH: 1.0, prelM: 30, csat: 0.5 }
-      };
-
       for (let offset = -13; offset <= 0; offset++) {
         const dStr = shiftDate(todayStr, offset);
         allLogs[dStr] = {};
         roster.forEach(s => {
-          const p = profiles[s.id] || profiles['M01'];
           const isToday = offset === 0;
           allLogs[dStr][s.id] = {
-            status: (isToday && s.id === 'M09') ? 'Leave' : 'Present',
-            gs: (isToday && s.id === 'M09') ? 0 : p.baseGS,
-            opt: (isToday && s.id === 'M09') ? 0 : p.baseOpt,
-            mainsHrs: (isToday && s.id === 'M09') ? 0 : p.mainsH,
-            mainsQs: (isToday && s.id === 'M09') ? 0 : p.mainsQ,
-            prelimsHrs: (isToday && s.id === 'M09') ? 0 : p.prelH,
-            prelimsMCQs: (isToday && s.id === 'M09') ? 0 : p.prelM,
-            csat: (isToday && s.id === 'M09') ? 0 : p.csat,
+            status: 'Present',
+            gs: 3.5,
+            opt: 2.0,
+            mainsHrs: 1.0,
+            mainsQs: 3,
+            prelimsHrs: 1.0,
+            prelimsMCQs: 30,
+            csat: 0.5,
             remarks: 'Daily target logged',
             source: 'student',
             studentOrigTotal: null,
-            locked: isToday && (s.id === 'M01'),
+            locked: false,
             updatedAt: '21:15'
           };
         });
@@ -746,7 +729,7 @@
       if (rerender) renderAll();
     }
 
-    function saveLogsToStorage(pushRemote = true) {
+    function saveLogsToStorage() {
       localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(allLogs));
     }
 
@@ -1065,23 +1048,29 @@
       document.getElementById('barCSAT').style.width = `${(entry.csat / denom) * 100}%`;
     }
 
-    // Analytics views
+    // Analytics views (Accessible to All)
     function renderAnalyticsView() {
       const dateStr = document.getElementById('activeDate').value;
-      const statsList = [], radarAlerts = [];
+      const statsList = [];
       roster.forEach(s => {
-        let curr7Sum = 0, currMainsQs = 0, currPrelimsMCQs = 0, currCSATSum = 0, last4OptSum = 0, last4MainsQs = 0;
+        let curr7Sum = 0, currMainsQs = 0, currPrelimsMCQs = 0;
         for (let i = -6; i <= 0; i++) {
           const e = getDayLogForStudent(shiftDate(dateStr, i), s.id);
           curr7Sum += computeTotalHours(e);
           currMainsQs += (parseInt(e.mainsQs) || 0);
           currPrelimsMCQs += (parseInt(e.prelimsMCQs) || 0);
-          currCSATSum += (parseFloat(e.csat) || 0);
-          if (i >= -3) { last4OptSum += (parseFloat(e.opt) || 0); last4MainsQs += (parseInt(e.mainsQs) || 0); }
         }
         const currAvg = +(curr7Sum / 7).toFixed(1);
         statsList.push({ student: s, currAvg, currMainsQs, currPrelimsMCQs, tierObj: classifyStudent({ status: 'Present', gs: currAvg, mainsHrs: currMainsQs > 0 ? 1 : 0, mainsQs: currMainsQs, prelimsMCQs: currPrelimsMCQs }) });
       });
+
+      const topDelta = [...statsList].sort((a, b) => b.currAvg - a.currAvg)[0];
+      if (topDelta) {
+        document.getElementById('deltaWinnerName').textContent = `${topDelta.student.name} (${topDelta.student.optional})`;
+        document.getElementById('deltaWinnerScore').textContent = `+0.0h / day ▲`;
+        document.getElementById('deltaWinnerCurrAvg').textContent = `${topDelta.currAvg.toFixed(1)}h / day`;
+      }
+
       const lbBody = document.getElementById('leaderboardTableBody');
       if (lbBody) {
         lbBody.innerHTML = '';
@@ -1104,8 +1093,8 @@
 
     function openSyncModal() {
       if (!isMentorAdmin) {
-        alert('Access denied. Mentor Admin PIN required to open Sync Hub.');
-        return;
+        promptMentorAccess();
+        if (!isMentorAdmin) return;
       }
       document.getElementById('googleSheetUrlInput').value = syncConfig.googleSheetUrl || '';
       document.getElementById('syncModal').classList.remove('hidden');
@@ -1168,40 +1157,45 @@
     }
 
     function switchMode(mode) {
-      if (mode !== 'student' && !isMentorAdmin) {
-        alert('Mentor PIN required to access Admin views.');
-        return;
+      if (mode === 'matrix' && !isMentorAdmin) {
+        promptMentorAccess();
+        if (!isMentorAdmin) return;
       }
       document.getElementById('studentView').classList.add('hidden');
       document.getElementById('matrixView').classList.add('hidden');
       document.getElementById('analyticsView').classList.add('hidden');
 
+      // Update tab styles
+      document.getElementById('tabStudentBtn').className = 'px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer';
+      document.getElementById('tabAnalyticsBtn').className = 'px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer';
+      const mBtn = document.getElementById('tabMatrixBtn');
+      if (mBtn) mBtn.className = 'px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer';
+
       if (mode === 'student') {
         document.getElementById('studentView').classList.remove('hidden');
+        document.getElementById('tabStudentBtn').className = 'px-4 py-2 rounded-md text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer';
         loadStudentIntoForm();
-      } else if (mode === 'matrix') {
-        document.getElementById('matrixView').classList.remove('hidden');
-        renderMatrixTable();
       } else if (mode === 'analytics') {
         document.getElementById('analyticsView').classList.remove('hidden');
+        document.getElementById('tabAnalyticsBtn').className = 'px-4 py-2 rounded-md text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer';
         renderAnalyticsView();
+      } else if (mode === 'matrix' && isMentorAdmin) {
+        document.getElementById('matrixView').classList.remove('hidden');
+        if (mBtn) mBtn.className = 'px-4 py-2 rounded-md text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer';
+        renderMatrixTable();
       }
     }
 
     function openRosterModal() {
-      if (!isMentorAdmin) {
-        promptMentorAccess();
-        if (!isMentorAdmin) return;
-      }
       const container = document.getElementById('rosterInputsContainer');
       container.innerHTML = '';
       roster.forEach((s, index) => {
         const row = document.createElement('div');
         row.className = 'grid grid-cols-12 gap-2 items-center bg-slate-50 p-2 rounded-lg border border-slate-200';
         row.innerHTML = `
-          <div class="col-span-2"><input type="text" id="rosterId_${index}" value="${s.id}" class="w-full text-xs font-mono border border-slate-300 rounded px-2 py-1.5 bg-white" /></div>
-          <div class="col-span-4"><input type="text" id="rosterName_${index}" value="${s.name}" class="w-full text-sm font-semibold border border-slate-300 rounded px-2.5 py-1.5 bg-white" /></div>
-          <div class="col-span-3"><input type="text" id="rosterOpt_${index}" value="${s.optional}" class="w-full text-xs border border-slate-300 rounded px-2 py-1.5 bg-white" /></div>
+          <div class="col-span-2"><input type="text" id="rosterId_${index}" value="${s.id}" class="w-full text-xs font-mono border border-slate-300 rounded px-2 py-1.5 bg-white" readonly /></div>
+          <div class="col-span-4"><input type="text" id="rosterName_${index}" value="${s.name}" class="w-full text-sm font-semibold border border-slate-300 rounded px-2.5 py-1.5 bg-white" placeholder="Student Name" /></div>
+          <div class="col-span-3"><input type="text" id="rosterOpt_${index}" value="${s.optional}" class="w-full text-xs border border-slate-300 rounded px-2 py-1.5 bg-white" placeholder="Optional" /></div>
           <div class="col-span-3"><input type="text" id="rosterPin_${index}" value="${s.pin}" maxlength="6" class="w-full text-xs font-mono font-bold text-center border border-emerald-400 rounded px-2 py-1.5 bg-emerald-50/40" /></div>
         `;
         container.appendChild(row);
@@ -1217,7 +1211,6 @@
 
     function saveRosterChanges() {
       roster.forEach((s, index) => {
-        s.id = document.getElementById(`rosterId_${index}`).value.trim() || s.id;
         s.name = document.getElementById(`rosterName_${index}`).value.trim() || s.name;
         s.optional = document.getElementById(`rosterOpt_${index}`).value.trim() || s.optional;
         s.pin = document.getElementById(`rosterPin_${index}`).value.trim() || s.pin;
