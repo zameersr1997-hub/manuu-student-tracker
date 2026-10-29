@@ -3,622 +3,1247 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MANUU CSE Academy | Mentorship & Prelims Analytics Portal</title>
+  <title>MANUU CSE Academy | Secure 15-Student Cohort Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', system-ui, sans-serif; }
-    .card { background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; }
-    .tab-active { background: #2563eb; color: #ffffff; font-weight: 600; }
-    .tab-inactive { background: #1e293b; color: #94a3b8; }
-    input, select { background: #0f172a; border: 1px solid #334155; color: #f8fafc; border-radius: 0.5rem; padding: 0.5rem 0.75rem; }
-    input:focus, select:focus { outline: 2px solid #3b82f6; border-color: transparent; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
+    .matrix-input {
+      width: 58px;
+      text-align: center;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 4px 2px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.15s ease;
+    }
+    .matrix-input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      background-color: #eff6ff;
+    }
+    .sub-input {
+      width: 50px;
+      text-align: center;
+      border: 1px dashed #94a3b8;
+      border-radius: 4px;
+      padding: 2px;
+      font-size: 0.75rem;
+      background-color: #f8fafc;
+    }
+    .sub-input:focus {
+      outline: none;
+      border-color: #0d9488;
+      background-color: #f0fdfa;
+    }
+    .pulse-dot {
+      animation: pulse-ring 2s infinite;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.9; }
+      50% { transform: scale(1.15); opacity: 0.4; }
+      100% { transform: scale(0.95); opacity: 0.9; }
+    }
   </style>
 </head>
-<body class="min-h-screen p-4 md:p-6">
+<body class="text-slate-800 min-h-screen flex flex-col">
 
-  <!-- TOP HEADER & GLOBAL MODULE SWITCHER -->
-  <header class="max-w-7xl mx-auto mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800 pb-4">
-    <div>
-      <div class="flex items-center gap-2">
-        <span class="px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider bg-blue-900 text-blue-200 rounded-full">MANUU CSE Academy</span>
-        <span id="syncStatus" class="text-xs text-emerald-400">● Cloud Sync Ready</span>
+  <!-- TOP NAVIGATION BAR -->
+  <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-lg shadow">
+          M
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-base sm:text-lg leading-tight">MANUU CSE Academy</h1>
+            <span id="roleHeaderBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              📱 Student / Public Portal (15 Slots)
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Mentor Cohort Tracker • Fully Editable 15-Student Roster</p>
+        </div>
       </div>
-      <h1 class="text-2xl font-bold tracking-tight mt-1">Mentorship Command & Diagnostic Portal</h1>
-      <p class="text-xs text-slate-400">Mentor: Zameer Ahmed | Internal Academy Performance Framework</p>
-    </div>
 
-    <!-- Main Module Switcher -->
-    <div class="flex flex-wrap items-center gap-2">
-      <button onclick="switchMainModule('study')" id="btnModuleStudy" class="px-4 py-2 rounded-lg text-sm transition tab-inactive">
-        ⏱️ 1. Daily Study Hours
-      </button>
-      <button onclick="switchMainModule('prelims')" id="btnModulePrelims" class="px-4 py-2 rounded-lg text-sm transition tab-active">
-        🎯 2. Prelims Test Analytics
-      </button>
-      <button onclick="openAuthModal()" id="roleBadge" class="ml-2 px-3 py-2 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40">
-        🔑 Mode: Mentor Admin
-      </button>
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" onclick="openSyncModal()" id="syncStatusBtn" class="bg-emerald-600 hover:bg-emerald-500 border border-emerald-400 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition shadow-sm cursor-pointer">
+          <span id="syncDot" class="w-2.5 h-2.5 rounded-full bg-white pulse-dot"></span>
+          <span id="syncLabelText">🔗 Cloud & Sheet Hub</span>
+        </button>
+
+        <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm">
+          <span class="text-slate-400 mr-2 text-xs font-medium">DATE:</span>
+          <input type="date" id="activeDate" class="bg-transparent text-white font-semibold focus:outline-none text-sm cursor-pointer" />
+        </div>
+
+        <button type="button" id="mentorPinBtn" onclick="promptMentorAccess()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer shadow-sm">
+          🔐 Mentor Mode (PIN Protected)
+        </button>
+
+        <button type="button" id="rosterBtn" onclick="openRosterModal()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1.5 transition cursor-pointer">
+          <span>👥 Edit 15-Student Roster</span>
+        </button>
+
+        <button type="button" id="exportCsvBtn" onclick="exportCSV()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition shadow-sm cursor-pointer">
+          ⬇️ Export CSV
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto">
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 space-y-6">
 
-    <!-- ========================================== -->
-    <!-- MODULE 1: DAILY STUDY HOURS TRACKER        -->
-    <!-- ========================================== -->
-    <section id="moduleStudy" class="hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Quick Daily Study Check-in -->
-        <div class="card p-5 space-y-4">
-          <h2 class="text-lg font-semibold text-blue-400">Daily Study Hour Check-In</h2>
-          <div class="space-y-3 text-sm">
-            <div>
-              <label class="block text-slate-400 mb-1">Select Student</label>
-              <select id="studyStudentSelect" class="w-full"></select>
-            </div>
-            <div>
-              <label class="block text-slate-400 mb-1">Date</label>
-              <input type="date" id="studyDate" class="w-full" />
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-slate-400 mb-1">GS Hours</label>
-                <input type="number" id="hrsGS" step="0.5" min="0" max="16" value="4.5" class="w-full" />
-              </div>
-              <div>
-                <label class="block text-slate-400 mb-1">Optional Hours</label>
-                <input type="number" id="hrsOpt" step="0.5" min="0" max="12" value="2.5" class="w-full" />
-              </div>
-              <div>
-                <label class="block text-slate-400 mb-1">Test / Revision</label>
-                <input type="number" id="hrsTest" step="0.5" min="0" max="10" value="1.5" class="w-full" />
-              </div>
-              <div>
-                <label class="block text-slate-400 mb-1">CSAT Hours</label>
-                <input type="number" id="hrsCSAT" step="0.5" min="0" max="8" value="1.0" class="w-full" />
-              </div>
-            </div>
-            <button onclick="submitStudyLog()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition">
-              Save & Sync Study Hours
-            </button>
-          </div>
+    <!-- KPI SUMMARY CARDS -->
+    <section class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cohort Avg Today</div>
+        <div class="mt-1 flex items-baseline gap-2">
+          <span id="statAvgHours" class="text-2xl font-bold text-slate-900">0.0h</span>
+          <span class="text-xs text-slate-500">/ <span id="targetLabel">8.0</span>h target</span>
         </div>
+        <div id="statLoggedCount" class="mt-1 text-xs text-slate-500">0 of 15 logged</div>
+      </div>
 
-        <!-- Cohort Study Matrix -->
-        <div class="card p-5 lg:col-span-2">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold">10-Student Study Consistency Matrix (Weekly Snapshot)</h2>
-            <span class="text-xs text-slate-400">Target: 55+ hrs/week</span>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead class="text-xs uppercase text-slate-400 border-b border-slate-700">
-                <tr>
-                  <th class="py-2">Student</th>
-                  <th>GS</th>
-                  <th>Optional</th>
-                  <th>Test/Rev</th>
-                  <th>CSAT</th>
-                  <th>Total</th>
-                  <th>Academy Tier</th>
-                </tr>
-              </thead>
-              <tbody id="studyTableBody" class="divide-y divide-slate-800"></tbody>
-            </table>
-          </div>
+      <div class="bg-blue-50/70 p-4 rounded-xl border border-blue-200 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-blue-800 uppercase">🔵 Achievers</span>
+          <span class="text-[11px] font-medium text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded" id="cutoffAchieverLabel">≥9.5h + Test</span>
         </div>
+        <div id="countAchiever" class="text-2xl font-bold text-blue-900 mt-1">0</div>
+        <div class="text-xs text-blue-700 mt-0.5">Pace setters</div>
+      </div>
+
+      <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-emerald-800 uppercase">🟢 Front Runners</span>
+          <span class="text-[11px] font-medium text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded" id="cutoffFrontLabel">8.0–9.4h</span>
+        </div>
+        <div id="countFrontRunner" class="text-2xl font-bold text-emerald-900 mt-1">0</div>
+        <div class="text-xs text-emerald-700 mt-0.5">Meeting 8h target</div>
+      </div>
+
+      <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-amber-800 uppercase">🟡 Performers</span>
+          <span class="text-[11px] font-medium text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded" id="cutoffPerformerLabel">5.5–7.9h</span>
+        </div>
+        <div id="countPerformer" class="text-2xl font-bold text-amber-900 mt-1">0</div>
+        <div class="text-xs text-amber-700 mt-0.5">Moderate effort</div>
+      </div>
+
+      <div class="bg-rose-50/70 p-4 rounded-xl border border-rose-200 shadow-sm col-span-2 md:col-span-1">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-rose-800 uppercase">🔴 Aspirants</span>
+          <span class="text-[11px] font-medium text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded" id="cutoffAspirantLabel">&lt;5.5h</span>
+        </div>
+        <div id="countAspirant" class="text-2xl font-bold text-rose-900 mt-1">0</div>
+        <div class="text-xs text-rose-700 mt-0.5">Needs mentor check-in</div>
       </div>
     </section>
 
-    <!-- ========================================== -->
-    <!-- MODULE 2: PRELIMS TEST ANALYTICS           -->
-    <!-- ========================================== -->
-    <section id="modulePrelims" class="space-y-6">
-
-      <!-- Phase & Filter Bar -->
-      <div class="card p-4 flex flex-wrap items-center justify-between gap-4">
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs uppercase tracking-wider text-slate-400 mr-1">Test Track:</span>
-          <button onclick="setPrelimsFilter('ALL')" id="fltALL" class="px-3 py-1.5 rounded text-xs font-semibold bg-blue-600 text-white">All Sunday Tests</button>
-          <button onclick="setPrelimsFilter('SECTIONAL')" id="fltSECTIONAL" class="px-3 py-1.5 rounded text-xs font-semibold bg-slate-800 text-slate-300">Phase 1: Sectionals (Nov–Feb)</button>
-          <button onclick="setPrelimsFilter('FLT')" id="fltFLT" class="px-3 py-1.5 rounded text-xs font-semibold bg-slate-800 text-slate-300">Phase 2: Full-Length GS (Mar+)</button>
-          <button onclick="setPrelimsFilter('CSAT')" id="fltCSAT" class="px-3 py-1.5 rounded text-xs font-semibold bg-slate-800 text-slate-300">Weekly CSAT Track</button>
-        </div>
-        <div class="flex items-center gap-3 text-xs">
-          <label class="text-slate-400">Inspect Student:</label>
-          <select id="prelimsStudentFilter" onchange="renderPrelimsDashboard()" class="text-xs py-1.5">
-            <option value="ALL">All 10 Students (Batch Overview)</option>
-          </select>
-        </div>
+    <!-- MODE SWITCHER TABS & SYNC BAR -->
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-3">
+      <div class="inline-flex flex-wrap rounded-lg bg-slate-200 p-1 gap-1" id="mainTabContainer">
+        <button type="button" id="tabStudentBtn" onclick="switchMode('student')" class="px-4 py-2 rounded-md text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer">
+          📱 1. Student Check-In & Cohort View
+        </button>
+        <button type="button" id="tabAnalyticsBtn" onclick="switchMode('analytics')" class="px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
+          📈 2. Weekly Delta (Δ) Analytics
+        </button>
+        <button type="button" id="tabMatrixBtn" onclick="switchMode('matrix')" class="px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer hidden">
+          📋 3. Mentor Admin Matrix
+        </button>
       </div>
 
-      <!-- KPI Summary Cards -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="card p-4">
-          <p class="text-xs text-slate-400">Avg GS Net Score (Out of 200)</p>
-          <p id="kpiGsAvg" class="text-2xl font-bold text-blue-400 mt-1">--</p>
-          <p class="text-[11px] text-slate-500 mt-1">Safe Target: 105+ Marks</p>
-        </div>
-        <div class="card p-4">
-          <p class="text-xs text-slate-400">Mean Accuracy %</p>
-          <p id="kpiAccuracy" class="text-2xl font-bold text-emerald-400 mt-1">--</p>
-          <p class="text-[11px] text-slate-500 mt-1">Benchmark: 72%+ Accuracy</p>
-        </div>
-        <div class="card p-4">
-          <p class="text-xs text-slate-400">Avg Negative Penalty Bleed</p>
-          <p id="kpiNegBleed" class="text-2xl font-bold text-rose-400 mt-1">--</p>
-          <p class="text-[11px] text-slate-500 mt-1">Alert if &gt; 18.0 marks lost</p>
-        </div>
-        <div class="card p-4">
-          <p class="text-xs text-slate-400">CSAT Qualifying Status (66.67+)</p>
-          <p id="kpiCsatSafe" class="text-2xl font-bold text-amber-400 mt-1">--</p>
-          <p class="text-[11px] text-slate-500 mt-1">+2.5 Right / -0.83 Wrong</p>
-        </div>
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <button type="button" onclick="manualSyncFromCloud()" id="syncNowBtn" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1 transition cursor-pointer">
+          <span>🔄 Pull Latest Logs</span>
+        </button>
       </div>
+    </div>
 
-      <!-- Mentor Score Entry + Mistake Diagnostic Logger -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="card p-5 space-y-4">
+    <!-- MODE 1: STUDENT PORTAL & COHORT VIEW (15 SLOTS) -->
+    <section id="studentView" class="space-y-6">
+      <div class="max-w-xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
+        <div class="bg-slate-900 text-white p-5">
           <div class="flex items-center justify-between">
-            <h2 class="text-base font-semibold text-blue-400">📝 Log Sunday Test OMR Result</h2>
-            <span class="text-[11px] text-slate-400">Auto-Calculates UPSC Marking</span>
+            <span class="text-xs uppercase tracking-wider font-semibold text-emerald-400">📱 Student Mobile Check-In Portal</span>
+            <span id="studentViewDateBadge" class="text-xs bg-slate-800 px-2.5 py-1 rounded text-slate-300"></span>
+          </div>
+          <h2 class="text-lg font-bold mt-1">Submit Your Daily UPSC Study Hours</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Select your editable name slot (1 to 15), enter your PIN, and log your hours.</p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
+            <div class="sm:col-span-2">
+              <label class="block text-xs text-slate-300 mb-1 font-medium">1. Select Your Name Slot</label>
+              <select id="studentSelectDropdown" onchange="onStudentMobileChange()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2.5 text-sm font-semibold focus:outline-none focus:border-emerald-400"></select>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-300 mb-1 font-medium">2. Your PIN</label>
+              <input type="password" id="studentPinInput" maxlength="6" oninput="verifyStudentPinLive()" placeholder="••••" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm font-mono font-bold text-center tracking-widest focus:outline-none focus:border-emerald-400" />
+            </div>
+          </div>
+          <div id="pinHintBanner" class="mt-2 text-[11px] text-amber-300">
+            <span id="pinStatusText">🔒 Enter your assigned student PIN to unlock entry.</span>
+          </div>
+        </div>
+
+        <div id="studentLockedBanner" class="hidden bg-purple-900 text-white px-4 py-3 text-xs font-semibold flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🔒</span>
+            <div>
+              <div>Verified & Locked by Mentor</div>
+              <div class="text-[11px] text-purple-200 font-normal">Your mentor has audited and frozen today's entry.</div>
+            </div>
+          </div>
+          <span class="bg-purple-700 px-2.5 py-1 rounded text-[11px]">Read-Only</span>
+        </div>
+
+        <div id="studentOverrideBanner" class="hidden bg-amber-50 border-b border-amber-200 px-4 py-2.5 text-xs text-amber-900 flex items-center justify-between">
+          <div>
+            <span class="font-bold">✏️ Mentor Adjusted Score:</span>
+            <span id="studentOverrideDetail">Your mentor reviewed and adjusted this log.</span>
+          </div>
+        </div>
+
+        <div class="p-4 bg-slate-50 border-b border-slate-200">
+          <div class="flex items-center justify-between mb-1.5">
+            <div>
+              <span class="text-xs font-semibold text-slate-500 uppercase">Today's Total:</span>
+              <span id="formTotalHours" class="text-xl font-bold text-slate-900 ml-1">0.0 hrs</span>
+              <span class="text-xs text-slate-400">/ 8.0h target</span>
+            </div>
+            <div id="formTierBadge" class="px-3 py-1 rounded-full text-xs font-bold">🔴 Aspirant</div>
+          </div>
+          <div class="w-full h-3 bg-slate-200 rounded-full overflow-hidden flex">
+            <div id="barGS" class="bg-indigo-500 h-full transition-all" style="width:0%"></div>
+            <div id="barOpt" class="bg-purple-500 h-full transition-all" style="width:0%"></div>
+            <div id="barMains" class="bg-teal-500 h-full transition-all" style="width:0%"></div>
+            <div id="barPrelims" class="bg-cyan-500 h-full transition-all" style="width:0%"></div>
+            <div id="barCSAT" class="bg-amber-500 h-full transition-all" style="width:0%"></div>
+          </div>
+        </div>
+
+        <fieldset id="studentFormFieldset" class="p-5 space-y-4 opacity-50 pointer-events-none">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <span class="text-sm font-semibold text-slate-700">Attendance Status</span>
+            <select id="formStatus" onchange="updateStudentFormPreviewOnly()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-medium bg-white">
+              <option value="Present">✅ Present (Active Study)</option>
+              <option value="Leave">🏖️ Approved Leave</option>
+              <option value="Sick">🤒 Medical / Sick</option>
+            </select>
           </div>
 
-          <div class="space-y-3 text-xs">
-            <div class="grid grid-cols-2 gap-2">
+          <div class="flex items-center justify-between bg-indigo-50/40 p-3 rounded-xl border border-indigo-100">
+            <div>
+              <div class="font-bold text-sm text-slate-800">1. General Studies (GS)</div>
+              <div class="text-xs text-slate-500">Static GS + Current Affairs</div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="stepFormValue('gs', -0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">-</button>
+              <input type="number" id="formGS" step="0.5" min="0" max="18" oninput="updateStudentFormPreviewOnly()" class="w-14 text-center font-bold text-base border border-slate-300 rounded-lg py-1 bg-white" />
+              <button type="button" onclick="stepFormValue('gs', 0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">+</button>
+              <span class="text-xs font-medium text-slate-500 w-5">hr</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between bg-purple-50/40 p-3 rounded-xl border border-purple-100">
+            <div>
+              <div class="font-bold text-sm text-slate-800">2. Optional (<span id="formStudentOptName" class="text-purple-700">PSIR</span>)</div>
+              <div class="text-xs text-slate-500">Paper 1 & 2 notes, revision</div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="stepFormValue('opt', -0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">-</button>
+              <input type="number" id="formOpt" step="0.5" min="0" max="18" oninput="updateStudentFormPreviewOnly()" class="w-14 text-center font-bold text-base border border-slate-300 rounded-lg py-1 bg-white" />
+              <button type="button" onclick="stepFormValue('opt', 0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">+</button>
+              <span class="text-xs font-medium text-slate-500 w-5">hr</span>
+            </div>
+          </div>
+
+          <div class="bg-teal-50/50 p-3.5 rounded-xl border border-teal-200 space-y-2">
+            <div class="flex items-center justify-between">
               <div>
-                <label class="block text-slate-400 mb-1">Student</label>
-                <select id="testStudent" class="w-full"></select>
+                <div class="font-bold text-sm text-slate-800">3. Test — Mains Writing</div>
+                <div class="text-xs text-slate-500">Daily answer writing or test</div>
               </div>
-              <div>
-                <label class="block text-slate-400 mb-1">Sunday Date</label>
-                <input type="date" id="testDate" class="w-full" />
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="stepFormValue('mainsHrs', -0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">-</button>
+                <input type="number" id="formMainsHrs" step="0.5" min="0" max="12" oninput="updateStudentFormPreviewOnly()" class="w-14 text-center font-bold text-base border border-slate-300 rounded-lg py-1 bg-white" />
+                <button type="button" onclick="stepFormValue('mainsHrs', 0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">+</button>
+                <span class="text-xs font-medium text-slate-500 w-5">hr</span>
               </div>
             </div>
-
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="block text-slate-400 mb-1">Paper Track</label>
-                <select id="testPhase" onchange="updateMarkingPreview()" class="w-full">
-                  <option value="SECTIONAL">Phase 1: GS Sectional (100 Q)</option>
-                  <option value="FLT">Phase 2: GS Full-Length (100 Q)</option>
-                  <option value="CSAT">Weekly CSAT Paper-2 (80 Q)</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-slate-400 mb-1">Subject / Test Code</label>
-                <select id="testSubject" class="w-full">
-                  <option value="Polity">Polity</option>
-                  <option value="Economy">Economy</option>
-                  <option value="History">History & Culture</option>
-                  <option value="Geography">Geography</option>
-                  <option value="Environment">Environment & Ecology</option>
-                  <option value="SciTech">Science & Tech</option>
-                  <option value="GS-FLT">GS Full-Length Test</option>
-                  <option value="CSAT-Mock">CSAT Full Mock</option>
-                </select>
+            <div class="flex items-center justify-between pt-2 border-t border-teal-200/60 text-xs">
+              <span class="font-semibold text-teal-900">↳ Sub-field: Mains Questions Written</span>
+              <div class="flex items-center gap-1.5">
+                <input type="number" id="formMainsQs" step="1" min="0" max="60" oninput="updateStudentFormPreviewOnly()" class="w-16 text-center font-bold border border-teal-400 rounded px-2 py-1 bg-white text-teal-900" />
+                <span class="text-teal-700 font-medium">Qs</span>
               </div>
             </div>
+          </div>
 
-            <div class="grid grid-cols-2 gap-2 pt-1">
+          <div class="bg-cyan-50/50 p-3.5 rounded-xl border border-cyan-200 space-y-2">
+            <div class="flex items-center justify-between">
               <div>
-                <label class="block text-emerald-400 mb-1 font-medium">Right Answers</label>
-                <input type="number" id="testRight" min="0" max="100" value="58" oninput="updateMarkingPreview()" class="w-full" />
+                <div class="font-bold text-sm text-slate-800">4. Test — Prelims Practice</div>
+                <div class="text-xs text-slate-500">MCQs + test revision</div>
               </div>
-              <div>
-                <label class="block text-rose-400 mb-1 font-medium">Wrong Answers</label>
-                <input type="number" id="testWrong" min="0" max="100" value="24" oninput="updateMarkingPreview()" class="w-full" />
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="stepFormValue('prelimsHrs', -0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">-</button>
+                <input type="number" id="formPrelimsHrs" step="0.5" min="0" max="12" oninput="updateStudentFormPreviewOnly()" class="w-14 text-center font-bold text-base border border-slate-300 rounded-lg py-1 bg-white" />
+                <button type="button" onclick="stepFormValue('prelimsHrs', 0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">+</button>
+                <span class="text-xs font-medium text-slate-500 w-5">hr</span>
               </div>
             </div>
-
-            <!-- Live Auto-Calculated Preview Box -->
-            <div class="p-3 bg-slate-900/90 rounded-lg border border-slate-800 grid grid-cols-4 text-center">
-              <div>
-                <span class="block text-[10px] text-slate-400">Attempted</span>
-                <span id="prevAttempt" class="font-bold text-slate-200">82</span>
-              </div>
-              <div>
-                <span class="block text-[10px] text-slate-400">Accuracy</span>
-                <span id="prevAcc" class="font-bold text-emerald-400">70.7%</span>
-              </div>
-              <div>
-                <span class="block text-[10px] text-slate-400">Neg Bleed</span>
-                <span id="prevNeg" class="font-bold text-rose-400">-16.0</span>
-              </div>
-              <div>
-                <span class="block text-[10px] text-slate-400">Net Marks</span>
-                <span id="prevNet" class="font-bold text-blue-400">100.0</span>
+            <div class="flex items-center justify-between pt-2 border-t border-cyan-200/60 text-xs">
+              <span class="font-semibold text-cyan-900">↳ Sub-field: Prelims MCQs Solved</span>
+              <div class="flex items-center gap-1.5">
+                <input type="number" id="formPrelimsMCQs" step="5" min="0" max="300" oninput="updateStudentFormPreviewOnly()" class="w-16 text-center font-bold border border-cyan-400 rounded px-2 py-1 bg-white text-cyan-900" />
+                <span class="text-cyan-700 font-medium">MCQs</span>
               </div>
             </div>
+          </div>
 
-            <!-- Root-Cause Mistake Breakdown (Solves Repeated Mistakes) -->
-            <div class="border-t border-slate-800 pt-2">
-              <label class="block text-amber-300 font-medium mb-1.5">Why didWrong Answers happen? (Mistake Triage)</label>
-              <div class="grid grid-cols-4 gap-1.5">
-                <div>
-                  <span class="block text-[10px] text-slate-400">Silly/Read</span>
-                  <input type="number" id="errSilly" min="0" value="5" class="w-full text-center" />
-                </div>
-                <div>
-                  <span class="block text-[10px] text-slate-400">Concept Gap</span>
-                  <input type="number" id="errConcept" min="0" value="8" class="w-full text-center" />
-                </div>
-                <div>
-                  <span class="block text-[10px] text-slate-400">50:50 Fail</span>
-                  <input type="number" id="err5050" min="0" value="7" class="w-full text-center" />
-                </div>
-                <div>
-                  <span class="block text-[10px] text-slate-400">Blind Guess</span>
-                  <input type="number" id="errGuess" min="0" value="4" class="w-full text-center" />
-                </div>
-              </div>
+          <div class="flex items-center justify-between bg-amber-50/50 p-3 rounded-xl border border-amber-200">
+            <div>
+              <div class="font-bold text-sm text-slate-800">5. CSAT (Paper II)</div>
+              <div class="text-xs text-slate-500">Quant, Reasoning & RC</div>
             </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="stepFormValue('csat', -0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">-</button>
+              <input type="number" id="formCSAT" step="0.5" min="0" max="12" oninput="updateStudentFormPreviewOnly()" class="w-14 text-center font-bold text-base border border-slate-300 rounded-lg py-1 bg-white" />
+              <button type="button" onclick="stepFormValue('csat', 0.5)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">+</button>
+              <span class="text-xs font-medium text-slate-500 w-5">hr</span>
+            </div>
+          </div>
 
-            <button onclick="submitPrelimsTest()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition">
-              Record Test Score & Sync to Sheet
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Topics Covered Today</label>
+            <input type="text" id="formRemarks" placeholder="e.g., Laxmikanth Parliament, PSIR Realism..." class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
+          </div>
+
+          <div class="pt-2">
+            <button type="button" id="studentSubmitBtn" onclick="submitStudentMobileLog()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+              <span>🚀 Submit My Daily Log</span>
             </button>
+            <p id="studentSubmitStatus" class="text-xs text-center font-semibold text-emerald-600 mt-2 hidden"></p>
           </div>
-        </div>
-
-        <!-- Charts Column (Trend + Subject Radar) -->
-        <div class="card p-5 lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h3 class="text-sm font-semibold text-slate-300 mb-2">📈 Score & Negative Bleed Progression</h3>
-            <canvas id="scoreTrendChart" height="210"></canvas>
-          </div>
-          <div>
-            <h3 class="text-sm font-semibold text-slate-300 mb-2">🕸️ Subject Accuracy & Mistake Diagnosis</h3>
-            <canvas id="subjectRadarChart" height="210"></canvas>
-          </div>
-        </div>
+        </fieldset>
       </div>
 
-      <!-- 10-Student Diagnostic Matrix & Academy Classification -->
-      <div class="card p-5">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4">
+      <!-- Read-Only Cohort Transparency View for Students -->
+      <div class="max-w-4xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mt-6">
+        <div class="px-5 py-3.5 bg-slate-100 border-b border-slate-200 flex items-center justify-between">
           <div>
-            <h2 class="text-base font-semibold">Sunday Prelims Diagnostic Ledger & 4-Tier Academy Classification</h2>
-            <p class="text-xs text-slate-400">Tracks attempt calibration, negative marking bleed, CSAT safety, and dominant error pattern.</p>
+            <h3 class="font-bold text-slate-800 text-sm">📊 Cohort Progress Board (Read-Only)</h3>
+            <p class="text-xs text-slate-500">See how your batchmates are performing today. (You cannot edit others' entries).</p>
           </div>
-          <button onclick="exportPrelimsCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded border border-slate-600">
-            ⬇️ Export CSV Backup
-          </button>
+          <span class="text-xs font-semibold text-slate-500 bg-white px-2.5 py-1 rounded border border-slate-200">15 Aspirants</span>
         </div>
-
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="uppercase text-slate-400 border-b border-slate-700 bg-slate-900/50">
-              <tr>
-                <th class="py-2.5 px-2">Date</th>
-                <th class="px-2">Student</th>
-                <th class="px-2">Track / Subject</th>
-                <th class="px-2">Attempt</th>
-                <th class="px-2 text-emerald-400">Right</th>
-                <th class="px-2 text-rose-400">Wrong</th>
-                <th class="px-2">Accuracy</th>
-                <th class="px-2 text-rose-400">Neg Penalty</th>
-                <th class="px-2 text-blue-400">Net Score</th>
-                <th class="px-2">Dominant Mistake</th>
-                <th class="px-2">Academy Diagnostic Status</th>
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50 text-slate-600 font-bold uppercase border-b border-slate-200">
+                <th class="py-2.5 px-3">Student Name</th>
+                <th class="py-2.5 px-2">Optional</th>
+                <th class="py-2.5 px-2 text-center">Status</th>
+                <th class="py-2.5 px-2 text-center">GS (h)</th>
+                <th class="py-2.5 px-2 text-center">Opt (h)</th>
+                <th class="py-2.5 px-2 text-center">Mains (h | Qs)</th>
+                <th class="py-2.5 px-2 text-center">Prelims (h | MCQs)</th>
+                <th class="py-2.5 px-2 text-center">CSAT (h)</th>
+                <th class="py-2.5 px-3 text-center">Total (8h)</th>
+                <th class="py-2.5 px-3 text-center">Tier Badge</th>
               </tr>
             </thead>
-            <tbody id="prelimsTableBody" class="divide-y divide-slate-800"></tbody>
+            <tbody id="studentCohortTableBody" class="divide-y divide-slate-200"></tbody>
           </table>
         </div>
       </div>
-
     </section>
+
+    <!-- MODE 2: MENTOR ADMIN MATRIX -->
+    <section id="matrixView" class="hidden space-y-4">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="font-bold text-sm sm:text-base flex items-center gap-2">
+              <span>🛡️ Mentor Admin Matrix (Full Access, Override & Lock Power)</span>
+            </h2>
+            <p class="text-xs text-slate-300">You have full authority to edit any cell, override student logs, or lock daily records.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="toggleLockAllToday(true)" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">
+              🔒 Lock All Today
+            </button>
+            <button type="button" onclick="toggleLockAllToday(false)" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1.5 rounded-lg font-medium transition cursor-pointer">
+              🔓 Unlock All
+            </button>
+            <button type="button" onclick="clearDayLogs()" class="text-xs text-rose-400 hover:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-rose-500/40 font-medium cursor-pointer">
+              Reset Day
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-600 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-2.5">ID</th>
+                <th class="py-3 px-3 min-w-[155px]">Student & Optional</th>
+                <th class="py-3 px-2 text-center">Source</th>
+                <th class="py-3 px-2 text-center">Status</th>
+                <th class="py-3 px-1.5 text-center bg-indigo-50/50">GS</th>
+                <th class="py-3 px-1.5 text-center bg-purple-50/50">Opt</th>
+                <th class="py-3 px-1.5 text-center bg-teal-50/60">Mains (Hrs | Qs)</th>
+                <th class="py-3 px-1.5 text-center bg-cyan-50/60">Prelims (Hrs | MCQs)</th>
+                <th class="py-3 px-1.5 text-center bg-amber-50/50">CSAT</th>
+                <th class="py-3 px-2.5 text-center">Total</th>
+                <th class="py-3 px-2.5 text-center">Tier</th>
+                <th class="py-3 px-2 text-center">Lock</th>
+                <th class="py-3 px-3 min-w-[180px]">Mentor Remarks</th>
+              </tr>
+            </thead>
+            <tbody id="matrixTableBody" class="divide-y divide-slate-200 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODE 3: WEEKLY DELTA ANALYTICS -->
+    <section id="analyticsView" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-5 shadow-md flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full border border-emerald-500/30">
+                🚀 Weekly Delta (Δ) Rank #1
+              </span>
+              <span class="text-xs text-slate-400">7-Day Rolling vs Prev Week</span>
+            </div>
+            <h3 id="deltaWinnerName" class="text-xl font-extrabold mt-3">—</h3>
+            <p id="deltaWinnerMeta" class="text-xs text-slate-300 mt-0.5">Most Improved Aspirant in MANUU Cohort</p>
+          </div>
+          <div class="mt-4 pt-4 border-t border-slate-700/80 flex items-baseline justify-between">
+            <div>
+              <div class="text-xs text-slate-400">Weekly Avg Surge</div>
+              <div id="deltaWinnerScore" class="text-2xl font-black text-emerald-400">+0.0h / day ▲</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-slate-400">Current 7d Avg</div>
+              <div id="deltaWinnerCurrAvg" class="text-lg font-bold text-white">0.0h</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-slate-800 text-base">⚠️ Automated Subject Neglect & Slump Radar (Last 7 Days)</h3>
+              <p class="text-xs text-slate-500">Flags aspirants neglecting Optional, Mains Answer Writing, CSAT, or dropping pace.</p>
+            </div>
+            <span id="radarAlertCount" class="text-xs font-bold bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full">0 Alerts</span>
+          </div>
+          <div id="neglectRadarList" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-48 overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm">7-Day Rolling Cohort Leaderboard & Delta (Δ)</h3>
+              <p class="text-xs text-slate-500">Click any student row to inspect their 7-day breakdown & copy a WhatsApp mentorship review.</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 text-[11px] font-bold uppercase border-b border-slate-200">
+                  <th class="py-2.5 px-3">Rank</th>
+                  <th class="py-2.5 px-3">Student</th>
+                  <th class="py-2.5 px-2 text-center">7d Avg/Day</th>
+                  <th class="py-2.5 px-2 text-center">Weekly Delta (Δ)</th>
+                  <th class="py-2.5 px-2 text-center">Mains Qs (7d)</th>
+                  <th class="py-2.5 px-2 text-center">Prelims MCQs (7d)</th>
+                  <th class="py-2.5 px-3 text-center">Rolling Tier</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardTableBody" class="divide-y divide-slate-200"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">7-Day Student Inspector</span>
+                <h3 id="inspectStudentName" class="font-bold text-base text-slate-900">Select a student</h3>
+              </div>
+              <span id="inspectStudentTier" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100">—</span>
+            </div>
+
+            <div class="mt-4">
+              <div class="flex items-center justify-between text-xs text-slate-500 mb-2">
+                <span>Last 7 Days Daily Trend</span>
+                <span class="text-emerald-700 font-semibold">--- 8.0h Target</span>
+              </div>
+              <div id="inspectorBars" class="h-32 flex items-end justify-between gap-2 pt-4 pb-1 px-2 bg-slate-50 rounded-xl border border-slate-200/80 relative"></div>
+            </div>
+
+            <div id="inspectorSubjectSplit" class="mt-4 space-y-1.5 text-xs"></div>
+          </div>
+
+          <div class="mt-5 pt-3 border-t border-slate-200">
+            <button type="button" onclick="copyWhatsAppReport()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 px-4 rounded-xl text-xs sm:text-sm shadow-sm transition flex items-center justify-center gap-2 cursor-pointer">
+              <span>📲 Copy Weekly WhatsApp Mentor Review</span>
+            </button>
+            <p id="waCopyToast" class="text-[11px] text-center text-emerald-600 font-medium mt-1.5 hidden">✓ Copied formatted mentorship report to clipboard!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
+  <!-- MODAL 1: EDIT 15-STUDENT ROSTER & EDITABLE NAMES & PINS -->
+  <div id="rosterModal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-base">Edit 15-Student Roster (Editable Names, Optionals & PINs)</h3>
+          <p class="text-xs text-slate-400">Anyone can edit names here, or protect with Mentor PIN.</p>
+        </div>
+        <button type="button" onclick="closeRosterModal()" class="text-slate-400 hover:text-white text-xl font-bold cursor-pointer">&times;</button>
+      </div>
+      <div class="px-5 pt-3 pb-1 bg-slate-100 text-[11px] font-bold uppercase text-slate-500 grid grid-cols-12 gap-2">
+        <div class="col-span-2">ID</div>
+        <div class="col-span-4">Student Name (Editable)</div>
+        <div class="col-span-3">Optional</div>
+        <div class="col-span-3">PIN</div>
+      </div>
+      <div class="p-5 max-h-[60vh] overflow-y-auto space-y-2" id="rosterInputsContainer"></div>
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+        <button type="button" onclick="closeRosterModal()" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-200 cursor-pointer">Cancel</button>
+        <button type="button" onclick="saveRosterChanges()" class="px-5 py-2 rounded-lg text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm cursor-pointer">Save 15 Roster Slots</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: CLOUD & GOOGLE SHEETS SYNC HUB -->
+  <div id="syncModal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Cloud Sync Architecture</span>
+          <h3 class="font-bold text-base sm:text-lg">Google Sheets Live Webhook Hub</h3>
+          <p class="text-xs text-slate-400">Paste your Google Sheet Web App URL below and click Save & Sync Now.</p>
+        </div>
+        <button type="button" onclick="closeSyncModal()" class="text-slate-400 hover:text-white text-2xl font-bold cursor-pointer">&times;</button>
+      </div>
+
+      <div class="p-6 max-h-[75vh] overflow-y-auto space-y-5 text-sm">
+        <div class="bg-emerald-50/70 border-2 border-emerald-300 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="font-bold text-emerald-950 text-base flex items-center gap-2">
+              <span>📊 Google Sheets Live Webhook URL (Apps Script)</span>
+            </div>
+            <span class="text-[11px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">Two-Way Sync</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase text-emerald-900 mb-1">Paste Your Google Sheet Web App URL Here:</label>
+            <input type="url" id="googleSheetUrlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full border-2 border-emerald-400 rounded-lg px-3 py-2.5 text-sm bg-white font-mono focus:outline-none focus:border-emerald-600" />
+          </div>
+
+          <div class="bg-white p-3 rounded-lg border border-emerald-200 flex flex-wrap items-center justify-between gap-2">
+            <div class="text-xs text-slate-600">
+              <b>📱 Share with Students:</b> After pasting your Google Sheet URL above, click this button to copy a magic link for your 15 students!
+            </div>
+            <button type="button" onclick="copyStudentMagicLink()" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-lg cursor-pointer shrink-0">
+              🔗 Copy Student Link
+            </button>
+          </div>
+          <p id="magicLinkToast" class="text-xs text-emerald-700 font-bold hidden"></p>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <span id="syncSaveFeedback" class="text-xs text-slate-500">Click Save & Sync Now to test connection.</span>
+        <div class="flex gap-2">
+          <button type="button" onclick="closeSyncModal()" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-200 cursor-pointer">Close</button>
+          <button type="button" onclick="saveSyncConfig()" class="px-5 py-2 rounded-lg text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm cursor-pointer">Save & Sync Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // ====================================================
-    // 1. CONFIGURATION & COHORT ROSTER (10 STUDENTS)
-    // ====================================================
-    const SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+    const STORAGE_KEY_ROSTER = 'manuu_cse_roster_v15_v1';
+    const STORAGE_KEY_LOGS   = 'manuu_cse_logs_v15_v1';
+    const STORAGE_KEY_SYNC   = 'manuu_cse_sync_v15_v1';
 
-    const STUDENTS = [
-      { id: "S01", name: "Aamir Khan", pin: "1101" },
-      { id: "S02", name: "Sana Fatima", pin: "1102" },
-      { id: "S03", name: "Md. Rizwan", pin: "1103" },
-      { id: "S04", name: "Zoya Siddiqui", pin: "1104" },
-      { id: "S05", name: "Farhan Ali", pin: "1105" },
-      { id: "S06", name: "Ayesha Begum", pin: "1106" },
-      { id: "S07", name: "Salman Shareef", pin: "1107" },
-      { id: "S08", name: "Hina Kauser", pin: "1108" },
-      { id: "S09", name: "Tariq Anwar", pin: "1109" },
-      { id: "S10", name: "Nida Parveen", pin: "1110" }
+    const PREBAKED_SHEET_URL = '';
+
+    const defaultRoster15 = [
+      { id: 'M01', name: 'Student 1',     optional: 'PSIR',         pin: '1001' },
+      { id: 'M02', name: 'Student 2',     optional: 'Sociology',    pin: '1002' },
+      { id: 'M03', name: 'Student 3',     optional: 'History',      pin: '1003' },
+      { id: 'M04', name: 'Student 4',     optional: 'PSIR',         pin: '1004' },
+      { id: 'M05', name: 'Student 5',     optional: 'Urdu Lit',     pin: '1005' },
+      { id: 'M06', name: 'Student 6',     optional: 'Anthropology', pin: '1006' },
+      { id: 'M07', name: 'Student 7',     optional: 'Geography',    pin: '1007' },
+      { id: 'M08', name: 'Student 8',     optional: 'PSIR',         pin: '1008' },
+      { id: 'M09', name: 'Student 9',     optional: 'Public Admin', pin: '1009' },
+      { id: 'M10', name: 'Student 10',    optional: 'Urdu Lit',     pin: '1010' },
+      { id: 'M11', name: 'Student 11',    optional: 'Political Sci',pin: '1011' },
+      { id: 'M12', name: 'Student 12',    optional: 'Economics',    pin: '1012' },
+      { id: 'M13', name: 'Student 13',    optional: 'Philosophy',   pin: '1013' },
+      { id: 'M14', name: 'Student 14',    optional: 'Pub Admin',    pin: '1014' },
+      { id: 'M15', name: 'Student 15',    optional: 'History',      pin: '1015' }
     ];
 
-    // Seed Sample Prelims Logs (Nov Sectionals + Weekly CSAT)
-    let prelimsLogs = JSON.parse(localStorage.getItem("manuu_prelims_logs")) || [
-      { date: "2026-11-01", studentId: "S01", studentName: "Aamir Khan", phase: "SECTIONAL", subject: "Polity", attempt: 85, right: 64, wrong: 21, acc: 75.3, neg: 14.0, net: 114.0, errSilly: 4, errConcept: 6, err5050: 8, errGuess: 3 },
-      { date: "2026-11-01", studentId: "S01", studentName: "Aamir Khan", phase: "CSAT", subject: "CSAT-Mock", attempt: 52, right: 36, wrong: 16, acc: 69.2, neg: 13.3, net: 76.7, errSilly: 5, errConcept: 6, err5050: 3, errGuess: 2 },
-      { date: "2026-11-01", studentId: "S02", studentName: "Sana Fatima", phase: "SECTIONAL", subject: "Polity", attempt: 92, right: 56, wrong: 36, acc: 60.9, neg: 24.0, net: 88.0, errSilly: 6, errConcept: 8, err5050: 10, errGuess: 12 },
-      { date: "2026-11-01", studentId: "S02", studentName: "Sana Fatima", phase: "CSAT", subject: "CSAT-Mock", attempt: 44, right: 27, wrong: 17, acc: 61.4, neg: 14.2, net: 53.3, errSilly: 6, errConcept: 7, err5050: 2, errGuess: 2 },
-      { date: "2026-11-08", studentId: "S01", studentName: "Aamir Khan", phase: "SECTIONAL", subject: "Economy", attempt: 80, right: 58, wrong: 22, acc: 72.5, neg: 14.7, net: 101.3, errSilly: 3, errConcept: 9, err5050: 7, errGuess: 3 },
-      { date: "2026-11-08", studentId: "S03", studentName: "Md. Rizwan", phase: "SECTIONAL", subject: "Economy", attempt: 64, right: 50, wrong: 14, acc: 78.1, neg: 9.3, net: 90.7, errSilly: 4, errConcept: 5, err5050: 4, errGuess: 1 }
-    ];
+    let kpiConfig = { achieverMin: 9.5, achieverRequireTest: true, frontRunnerMin: 8.0, performerMin: 5.5 };
+    let syncConfig = { googleSheetUrl: PREBAKED_SHEET_URL };
+    let roster = [];
+    let allLogs = {};
+    let isMentorAdmin = false;
+    let inspectedStudentId = 'M01';
 
-    let activePrelimsFilter = "ALL";
-    let trendChartInstance = null;
-    let radarChartInstance = null;
+    function initApp() {
+      const savedRoster = localStorage.getItem(STORAGE_KEY_ROSTER);
+      roster = savedRoster ? JSON.parse(savedRoster) : JSON.parse(JSON.stringify(defaultRoster15));
 
-    // ====================================================
-    // 2. INITIALIZATION & NAVIGATION
-    // ====================================================
-    window.onload = function() {
-      const today = new Date().toISOString().split("T")[0];
-      document.getElementById("studyDate").value = today;
-      document.getElementById("testDate").value = today;
+      const savedSync = localStorage.getItem(STORAGE_KEY_SYNC);
+      if (savedSync) syncConfig = JSON.parse(savedSync);
+      if (PREBAKED_SHEET_URL && !syncConfig.googleSheetUrl) syncConfig.googleSheetUrl = PREBAKED_SHEET_URL;
 
-      populateStudentDropdowns();
-      updateMarkingPreview();
-      renderStudyMatrix();
-      renderPrelimsDashboard();
-    };
-
-    function populateStudentDropdowns() {
-      const s1 = document.getElementById("studyStudentSelect");
-      const s2 = document.getElementById("testStudent");
-      const s3 = document.getElementById("prelimsStudentFilter");
-
-      STUDENTS.forEach(st => {
-        s1.innerHTML += `<option value="${st.id}">${st.name}</option>`;
-        s2.innerHTML += `<option value="${st.id}">${st.name}</option>`;
-        s3.innerHTML += `<option value="${st.id}">${st.name}</option>`;
-      });
-    }
-
-    function switchMainModule(mod) {
-      const isStudy = mod === "study";
-      document.getElementById("moduleStudy").classList.toggle("hidden", !isStudy);
-      document.getElementById("modulePrelims").classList.toggle("hidden", isStudy);
-      document.getElementById("btnModuleStudy").className = `px-4 py-2 rounded-lg text-sm transition ${isStudy ? "tab-active" : "tab-inactive"}`;
-      document.getElementById("btnModulePrelims").className = `px-4 py-2 rounded-lg text-sm transition ${!isStudy ? "tab-active" : "tab-inactive"}`;
-    }
-
-    // ====================================================
-    // 3. UPSC DUAL-MARKING ENGINE (GS vs CSAT)
-    // ====================================================
-    function calculateUPSCScores(phase, right, wrong) {
-      const attempt = right + wrong;
-      const acc = attempt > 0 ? ((right / attempt) * 100) : 0;
-      let posMarks = 0, negMarks = 0;
-
-      if (phase === "CSAT") {
-        // CSAT: 80 Qs, +2.5 for Right, -0.833 for Wrong
-        posMarks = right * 2.5;
-        negMarks = wrong * (2.5 / 3);
-      } else {
-        // GS Paper 1: 100 Qs, +2.0 for Right, -0.667 for Wrong
-        posMarks = right * 2.0;
-        negMarks = wrong * (2.0 / 3);
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('sheet')) {
+        syncConfig.googleSheetUrl = urlParams.get('sheet').trim();
+        localStorage.setItem(STORAGE_KEY_SYNC, JSON.stringify(syncConfig));
       }
 
-      const net = posMarks - negMarks;
-      return {
-        attempt,
-        acc: Number(acc.toFixed(1)),
-        neg: Number(negMarks.toFixed(1)),
-        net: Number(net.toFixed(1))
-      };
-    }
+      const savedLogs = localStorage.getItem(STORAGE_KEY_LOGS);
+      allLogs = savedLogs ? JSON.parse(savedLogs) : {};
 
-    function updateMarkingPreview() {
-      const phase = document.getElementById("testPhase").value;
-      const right = parseInt(document.getElementById("testRight").value) || 0;
-      const wrong = parseInt(document.getElementById("testWrong").value) || 0;
-      const res = calculateUPSCScores(phase, right, wrong);
+      const dateInput = document.getElementById('activeDate');
+      const todayStr = new Date().toISOString().split('T')[0];
+      dateInput.value = todayStr;
 
-      document.getElementById("prevAttempt").innerText = res.attempt;
-      document.getElementById("prevAcc").innerText = res.acc + "%";
-      document.getElementById("prevNeg").innerText = "-" + res.neg;
-      document.getElementById("prevNet").innerText = res.net;
-    }
+      if (Object.keys(allLogs).length === 0) seed14DayHistory(false);
 
-    // ====================================================
-    // 4. SUBMIT PRELIMS TEST & SYNC TO GOOGLE SHEETS
-    // ====================================================
-    async function submitPrelimsTest() {
-      const studentId = document.getElementById("testStudent").value;
-      const studentObj = STUDENTS.find(s => s.id === studentId);
-      const date = document.getElementById("testDate").value;
-      const phase = document.getElementById("testPhase").value;
-      const subject = document.getElementById("testSubject").value;
-      const right = parseInt(document.getElementById("testRight").value) || 0;
-      const wrong = parseInt(document.getElementById("testWrong").value) || 0;
+      dateInput.addEventListener('change', () => renderAll());
 
-      const errSilly = parseInt(document.getElementById("errSilly").value) || 0;
-      const errConcept = parseInt(document.getElementById("errConcept").value) || 0;
-      const err5050 = parseInt(document.getElementById("err5050").value) || 0;
-      const errGuess = parseInt(document.getElementById("errGuess").value) || 0;
-
-      const calc = calculateUPSCScores(phase, right, wrong);
-
-      const entry = {
-        action: "logPrelimsTest",
-        date,
-        studentId,
-        studentName: studentObj.name,
-        phase,
-        subject,
-        attempt: calc.attempt,
-        right,
-        wrong,
-        acc: calc.acc,
-        neg: calc.neg,
-        net: calc.net,
-        errSilly,
-        errConcept,
-        err5050,
-        errGuess
-      };
-
-      prelimsLogs.unshift(entry);
-      localStorage.setItem("manuu_prelims_logs", JSON.stringify(prelimsLogs));
-      renderPrelimsDashboard();
-
-      if (SCRIPT_URL.startsWith("http")) {
-        document.getElementById("syncStatus").innerText = "⏳ Syncing to Google Sheet...";
-        try {
-          await fetch(SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(entry)
-          });
-          document.getElementById("syncStatus").innerText = "● Synced to Google Sheet";
-        } catch (e) {
-          document.getElementById("syncStatus").innerText = "⚠️ Saved Locally (Offline)";
+      window.addEventListener('storage', (e) => {
+        if (e.key === STORAGE_KEY_LOGS && e.newValue) {
+          allLogs = JSON.parse(e.newValue);
+          renderAll();
         }
+      });
+
+      populateStudentDropdown();
+      updateSyncBadgeUI();
+      renderAll();
+
+      if (urlParams.get('mentor') === 'true') {
+        promptMentorAccess(true);
+      } else {
+        setStudentModeUI();
+      }
+
+      if (syncConfig.googleSheetUrl) manualSyncFromCloud(true);
+    }
+
+    function promptMentorAccess(autoPass = false) {
+      const pass = autoPass ? '0259' : prompt('Enter Mentor Admin PIN:');
+      if (pass === '0259' || pass === 'manuu2026') {
+        isMentorAdmin = true;
+        document.getElementById('roleHeaderBadge').textContent = '🛡️ Mentor Admin Mode';
+        document.getElementById('roleHeaderBadge').className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+        document.getElementById('mentorPinBtn').textContent = '🛡️ Mentor Active';
+        document.getElementById('mentorPinBtn').className = 'bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm';
+        
+        // Show Mentor Matrix tab
+        document.getElementById('tabMatrixBtn').classList.remove('hidden');
+        switchMode('matrix');
+      } else if (pass !== null) {
+        alert('Incorrect Mentor PIN.');
       }
     }
 
-    // ====================================================
-    // 5. DIAGNOSTIC CLASSIFICATION & RENDERING
-    // ====================================================
-    function getDiagnosticBadge(log) {
-      if (log.phase === "CSAT") {
-        if (log.net < 66.7) return `<span class="px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-700 font-semibold">🚨 CSAT Red Zone (&lt;66.7)</span>`;
-        if (log.net < 80) return `<span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700">⚠️ CSAT Borderline</span>`;
-        return `<span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700">✅ CSAT Safe</span>`;
+    function setStudentModeUI() {
+      isMentorAdmin = false;
+      document.getElementById('roleHeaderBadge').textContent = '📱 Student / Public Portal (15 Slots)';
+      document.getElementById('roleHeaderBadge').className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30';
+      document.getElementById('mentorPinBtn').textContent = '🔐 Mentor Mode (PIN Protected)';
+      document.getElementById('mentorPinBtn').className = 'bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer shadow-sm';
+      
+      document.getElementById('tabMatrixBtn').classList.add('hidden');
+      switchMode('student');
+    }
+
+    function getEmptyEntry() {
+      return { status: 'Present', gs: 0, opt: 0, mainsHrs: 0, mainsQs: 0, prelimsHrs: 0, prelimsMCQs: 0, csat: 0, remarks: '', source: 'unlogged', studentOrigTotal: null, locked: false, updatedAt: null };
+    }
+
+    function shiftDate(baseDateStr, deltaDays) {
+      const d = new Date(baseDateStr + 'T00:00:00');
+      d.setDate(d.getDate() + deltaDays);
+      return d.toISOString().split('T')[0];
+    }
+
+    function seed14DayHistory(rerender = true) {
+      const todayStr = document.getElementById('activeDate').value || new Date().toISOString().split('T')[0];
+      for (let offset = -13; offset <= 0; offset++) {
+        const dStr = shiftDate(todayStr, offset);
+        allLogs[dStr] = {};
+        roster.forEach(s => {
+          const isToday = offset === 0;
+          allLogs[dStr][s.id] = {
+            status: 'Present',
+            gs: 3.5,
+            opt: 2.0,
+            mainsHrs: 1.0,
+            mainsQs: 3,
+            prelimsHrs: 1.0,
+            prelimsMCQs: 30,
+            csat: 0.5,
+            remarks: 'Daily target logged',
+            source: 'student',
+            studentOrigTotal: null,
+            locked: false,
+            updatedAt: '21:15'
+          };
+        });
       }
-      if (log.neg >= 20.0) return `<span class="px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-700 font-semibold">🩸 High Negative Bleeder</span>`;
-      if (log.attempt < 68 && log.acc >= 75) return `<span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700">🐢 Conservative Under-Attempter</span>`;
-      if (log.net >= 105) return `<span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 font-semibold">🏆 Tier-1 Combat Ready</span>`;
-      return `<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">📊 Foundation Building</span>`;
+      saveLogsToStorage();
+      if (rerender) renderAll();
     }
 
-    function getDominantMistake(log) {
-      const errs = [
-        { label: "Silly/Reading Error", val: log.errSilly || 0 },
-        { label: "Conceptual Gap", val: log.errConcept || 0 },
-        { label: "50:50 Elimination Fail", val: log.err5050 || 0 },
-        { label: "Blind Guessing", val: log.errGuess || 0 }
-      ];
-      errs.sort((a, b) => b.val - a.val);
-      return errs[0].val > 0 ? `${errs[0].label} (${errs[0].val})` : "N/A";
+    function saveLogsToStorage() {
+      localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(allLogs));
     }
 
-    function setPrelimsFilter(flt) {
-      activePrelimsFilter = flt;
-      ["ALL", "SECTIONAL", "FLT", "CSAT"].forEach(id => {
-        document.getElementById("flt" + id).className = `px-3 py-1.5 rounded text-xs font-semibold ${flt === id ? "bg-blue-600 text-white" : "bg-slate-800 text-slate-300"}`;
-      });
-      renderPrelimsDashboard();
+    function getDayLogForStudent(dateStr, studentId) {
+      if (!allLogs[dateStr]) allLogs[dateStr] = {};
+      if (!allLogs[dateStr][studentId]) allLogs[dateStr][studentId] = getEmptyEntry();
+      return allLogs[dateStr][studentId];
     }
 
-    function renderPrelimsDashboard() {
-      const studentFilter = document.getElementById("prelimsStudentFilter").value;
-      const filtered = prelimsLogs.filter(l => {
-        const matchPhase = activePrelimsFilter === "ALL" || l.phase === activePrelimsFilter;
-        const matchStudent = studentFilter === "ALL" || l.studentId === studentFilter;
-        return matchPhase && matchStudent;
-      });
+    function computeTotalHours(entry) {
+      return +((parseFloat(entry.gs) || 0) + (parseFloat(entry.opt) || 0) + (parseFloat(entry.mainsHrs) || 0) + (parseFloat(entry.prelimsHrs) || 0) + (parseFloat(entry.csat) || 0)).toFixed(1);
+    }
 
-      // Populate Table
-      const tbody = document.getElementById("prelimsTableBody");
-      tbody.innerHTML = "";
-      filtered.forEach(l => {
-        tbody.innerHTML += `
-          <tr class="hover:bg-slate-800/60">
-            <td class="py-2.5 px-2 text-slate-400">${l.date}</td>
-            <td class="px-2 font-medium text-white">${l.studentName}</td>
-            <td class="px-2"><span class="text-[11px] px-1.5 py-0.5 rounded bg-slate-800 text-blue-300">${l.phase}</span> ${l.subject}</td>
-            <td class="px-2">${l.attempt}</td>
-            <td class="px-2 text-emerald-400 font-medium">${l.right}</td>
-            <td class="px-2 text-rose-400 font-medium">${l.wrong}</td>
-            <td class="px-2 font-semibold">${l.acc}%</td>
-            <td class="px-2 text-rose-400">-${l.neg}</td>
-            <td class="px-2 font-bold text-blue-400 text-sm">${l.net}</td>
-            <td class="px-2 text-amber-300">${getDominantMistake(l)}</td>
-            <td class="px-2">${getDiagnosticBadge(l)}</td>
-          </tr>
+    function classifyStudent(entry) {
+      const total = computeTotalHours(entry);
+      const hasTestActivity = ((parseFloat(entry.mainsHrs) || 0) > 0 || (parseInt(entry.mainsQs) || 0) > 0 || (parseFloat(entry.prelimsHrs) || 0) > 0 || (parseInt(entry.prelimsMCQs) || 0) > 0);
+
+      if (entry.status !== 'Present' && total === 0) return { tier: 'On Leave', badgeClass: 'bg-slate-100 text-slate-600 border border-slate-300', dot: '⚪' };
+      if (total >= kpiConfig.achieverMin && (!kpiConfig.achieverRequireTest || hasTestActivity)) return { tier: 'Achiever', badgeClass: 'bg-blue-100 text-blue-800 border border-blue-300', dot: '🔵' };
+      if (total >= kpiConfig.frontRunnerMin) return { tier: 'Front Runner', badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-300', dot: '🟢' };
+      if (total >= kpiConfig.performerMin) return { tier: 'Performer', badgeClass: 'bg-amber-100 text-amber-800 border border-amber-300', dot: '🟡' };
+      return { tier: 'Aspirant', badgeClass: 'bg-rose-100 text-rose-800 border border-rose-300', dot: '🔴' };
+    }
+
+    function renderAll() {
+      renderMatrixTable();
+      renderStudentCohortTable();
+      renderAnalyticsView();
+      loadStudentIntoForm();
+      updateSummaryCards();
+    }
+
+    function renderMatrixTable() {
+      const dateStr = document.getElementById('activeDate').value;
+      const tbody = document.getElementById('matrixTableBody');
+      tbody.innerHTML = '';
+
+      roster.forEach((student) => {
+        const entry = getDayLogForStudent(dateStr, student.id);
+        const total = computeTotalHours(entry);
+        const tierObj = classifyStudent(entry);
+
+        const tr = document.createElement('tr');
+        tr.className = `hover:bg-slate-50/90 transition ${entry.locked ? 'bg-slate-50/60' : ''}`;
+        tr.innerHTML = `
+          <td class="py-2.5 px-2.5 font-mono text-xs text-slate-400">${student.id}</td>
+          <td class="py-2.5 px-3">
+            <div class="font-bold text-slate-800">${student.name}</div>
+            <div class="text-[11px] font-medium text-purple-700">${student.optional}</div>
+          </td>
+          <td class="py-2.5 px-2 text-center">${entry.source === 'mentor_override' ? '✏️ Override' : '📱 Mobile'}</td>
+          <td class="py-2.5 px-2 text-center">
+            <select onchange="updateCell('${student.id}', 'status', this.value)" class="text-xs border border-slate-300 rounded px-1.5 py-1 bg-white font-medium">
+              <option value="Present" ${entry.status === 'Present' ? 'selected' : ''}>Present</option>
+              <option value="Leave" ${entry.status === 'Leave' ? 'selected' : ''}>Leave</option>
+              <option value="Sick" ${entry.status === 'Sick' ? 'selected' : ''}>Sick</option>
+            </select>
+          </td>
+          <td class="py-2.5 px-1.5 text-center bg-indigo-50/20"><input type="number" step="0.5" min="0" max="18" value="${entry.gs}" oninput="updateCell('${student.id}', 'gs', this.value)" class="matrix-input" /></td>
+          <td class="py-2.5 px-1.5 text-center bg-purple-50/20"><input type="number" step="0.5" min="0" max="18" value="${entry.opt}" oninput="updateCell('${student.id}', 'opt', this.value)" class="matrix-input" /></td>
+          <td class="py-2.5 px-1.5 text-center bg-teal-50/30">
+            <div class="flex items-center justify-center gap-1">
+              <input type="number" step="0.5" min="0" max="12" value="${entry.mainsHrs}" oninput="updateCell('${student.id}', 'mainsHrs', this.value)" class="matrix-input" />
+              <input type="number" step="1" min="0" max="60" value="${entry.mainsQs}" oninput="updateCell('${student.id}', 'mainsQs', this.value)" class="sub-input" />
+            </div>
+          </td>
+          <td class="py-2.5 px-1.5 text-center bg-cyan-50/30">
+            <div class="flex items-center justify-center gap-1">
+              <input type="number" step="0.5" min="0" max="12" value="${entry.prelimsHrs}" oninput="updateCell('${student.id}', 'prelimsHrs', this.value)" class="matrix-input" />
+              <input type="number" step="5" min="0" max="300" value="${entry.prelimsMCQs}" oninput="updateCell('${student.id}', 'prelimsMCQs', this.value)" class="sub-input" />
+            </div>
+          </td>
+          <td class="py-2.5 px-1.5 text-center bg-amber-50/20"><input type="number" step="0.5" min="0" max="12" value="${entry.csat}" oninput="updateCell('${student.id}', 'csat', this.value)" class="matrix-input" /></td>
+          <td class="py-2.5 px-2.5 text-center"><span class="font-bold text-base text-slate-900">${total.toFixed(1)}h</span></td>
+          <td class="py-2.5 px-2.5 text-center"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${tierObj.badgeClass}">${tierObj.dot} ${tierObj.tier}</span></td>
+          <td class="py-2.5 px-2 text-center">
+            <button type="button" onclick="toggleRowLock('${student.id}')" class="px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${entry.locked ? 'bg-purple-700 text-white' : 'bg-slate-200 text-slate-700'}">${entry.locked ? '🔒 Locked' : '🔓 Open'}</button>
+          </td>
+          <td class="py-2.5 px-3"><input type="text" value="${entry.remarks || ''}" oninput="updateCell('${student.id}', 'remarks', this.value)" class="w-full text-xs border border-slate-200 rounded px-2 py-1.5 bg-slate-50" /></td>
         `;
-      });
-
-      // Compute KPIs
-      const gsTests = filtered.filter(l => l.phase !== "CSAT");
-      const csatTests = filtered.filter(l => l.phase === "CSAT");
-
-      const gsAvg = gsTests.length ? (gsTests.reduce((a, b) => a + b.net, 0) / gsTests.length).toFixed(1) : "--";
-      const accAvg = filtered.length ? (filtered.reduce((a, b) => a + b.acc, 0) / filtered.length).toFixed(1) + "%" : "--";
-      const negAvg = gsTests.length ? "-" + (gsTests.reduce((a, b) => a + b.neg, 0) / gsTests.length).toFixed(1) : "--";
-      const csatPass = csatTests.filter(l => l.net >= 66.67).length;
-
-      document.getElementById("kpiGsAvg").innerText = gsAvg;
-      document.getElementById("kpiAccuracy").innerText = accAvg;
-      document.getElementById("kpiNegBleed").innerText = negAvg;
-      document.getElementById("kpiCsatSafe").innerText = csatTests.length ? `${csatPass}/${csatTests.length} Safe` : "--";
-
-      renderCharts(filtered);
-    }
-
-    function renderCharts(data) {
-      const ctx1 = document.getElementById("scoreTrendChart").getContext("2d");
-      const ctx2 = document.getElementById("subjectRadarChart").getContext("2d");
-
-      if (trendChartInstance) trendChartInstance.destroy();
-      if (radarChartInstance) radarChartInstance.destroy();
-
-      const chronological = [...data].reverse();
-      trendChartInstance = new Chart(ctx1, {
-        type: "line",
-        data: {
-          labels: chronological.map(d => `${d.subject} (${d.date.slice(5)})`),
-          datasets: [
-            { label: "Net Score", data: chronological.map(d => d.net), borderColor: "#3b82f6", tension: 0.3 },
-            { label: "Negative Marks Lost", data: chronological.map(d => d.neg), borderColor: "#f43f5e", tension: 0.3 }
-          ]
-        },
-        options: { plugins: { legend: { labels: { color: "#cbd5e1" } } }, scales: { y: { ticks: { color: "#94a3b8" } }, x: { ticks: { color: "#94a3b8" } } } }
-      });
-
-      const subjects = ["Polity", "Economy", "History", "Geography", "Environment", "SciTech"];
-      const subjScores = subjects.map(sub => {
-        const matches = data.filter(d => d.subject === sub);
-        return matches.length ? (matches.reduce((a, b) => a + b.acc, 0) / matches.length).toFixed(1) : 0;
-      });
-
-      radarChartInstance = new Chart(ctx2, {
-        type: "radar",
-        data: {
-          labels: subjects,
-          datasets: [{
-            label: "Subject Accuracy %",
-            data: subjScores,
-            backgroundColor: "rgba(16, 185, 129, 0.2)",
-            borderColor: "#10b981",
-            pointBackgroundColor: "#10b981"
-          }]
-        },
-        options: { scales: { r: { suggestedMin: 0, suggestedMax: 100, grid: { color: "#334155" }, pointLabels: { color: "#cbd5e1" }, ticks: { display: false } } }, plugins: { legend: { labels: { color: "#cbd5e1" } } } }
+        tbody.appendChild(tr);
       });
     }
 
-    function renderStudyMatrix() {
-      const tbody = document.getElementById("studyTableBody");
-      tbody.innerHTML = STUDENTS.map((s, idx) => {
-        const gs = 26 + (idx % 5) * 2;
-        const opt = 14 + (idx % 3) * 2;
-        const rev = 8;
-        const csat = 5;
-        const total = gs + opt + rev + csat;
-        const tier = total >= 55 ? `<span class="text-emerald-400 font-semibold">Tier-1 Consistent</span>` : `<span class="text-amber-400">Tier-2 Moderate</span>`;
-        return `<tr class="py-2"><td class="py-2 font-medium">${s.name}</td><td>${gs}h</td><td>${opt}h</td><td>${rev}h</td><td>${csat}h</td><td class="font-bold text-blue-400">${total}h</td><td>${tier}</td></tr>`;
-      }).join("");
+    function renderStudentCohortTable() {
+      const dateStr = document.getElementById('activeDate').value;
+      const tbody = document.getElementById('studentCohortTableBody');
+      tbody.innerHTML = '';
+
+      roster.forEach(student => {
+        const entry = getDayLogForStudent(dateStr, student.id);
+        const total = computeTotalHours(entry);
+        const tierObj = classifyStudent(entry);
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50';
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-bold text-slate-800">${student.name}</td>
+          <td class="py-2.5 px-2 text-purple-700">${student.optional}</td>
+          <td class="py-2.5 px-2 text-center font-medium">${entry.status}</td>
+          <td class="py-2.5 px-2 text-center bg-indigo-50/30">${entry.gs}h</td>
+          <td class="py-2.5 px-2 text-center bg-purple-50/30">${entry.opt}h</td>
+          <td class="py-2.5 px-2 text-center bg-teal-50/30">${entry.mainsHrs}h | <b class="text-teal-900">${entry.mainsQs} Qs</b></td>
+          <td class="py-2.5 px-2 text-center bg-cyan-50/30">${entry.prelimsHrs}h | <b class="text-cyan-900">${entry.prelimsMCQs} MCQs</b></td>
+          <td class="py-2.5 px-2 text-center bg-amber-50/30">${entry.csat}h</td>
+          <td class="py-2.5 px-3 text-center font-bold text-slate-900">${total.toFixed(1)}h</td>
+          <td class="py-2.5 px-3 text-center"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${tierObj.badgeClass}">${tierObj.dot} ${tierObj.tier}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
-    function exportPrelimsCSV() {
-      const headers = ["Date,Student,Phase,Subject,Attempt,Right,Wrong,Accuracy,NegPenalty,NetScore,SillyErr,ConceptErr,5050Err,BlindGuess"];
-      const rows = prelimsLogs.map(l => `${l.date},${l.studentName},${l.phase},${l.subject},${l.attempt},${l.right},${l.wrong},${l.acc},${l.neg},${l.net},${l.errSilly},${l.errConcept},${l.err5050},${l.errGuess}`);
-      const blob = new Blob([[...headers, ...rows].join("\n")], { type: "text/csv" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "MANUU_Prelims_Analytics_Backup.csv";
-      a.click();
+    function updateCell(studentId, field, value) {
+      const dateStr = document.getElementById('activeDate').value;
+      const entry = getDayLogForStudent(dateStr, studentId);
+      if (['gs', 'opt', 'mainsHrs', 'prelimsHrs', 'csat'].includes(field)) entry[field] = Math.max(0, parseFloat(value) || 0);
+      else if (['mainsQs', 'prelimsMCQs'].includes(field)) entry[field] = Math.max(0, parseInt(value) || 0);
+      else entry[field] = value;
+
+      entry.source = 'mentor_override';
+      saveLogsToStorage();
+      renderMatrixTable();
+      renderStudentCohortTable();
+      updateSummaryCards();
+      const sObj = roster.find(r => r.id === studentId);
+      if (sObj) pushRowToGoogleSheet(dateStr, sObj, entry);
     }
+
+    function toggleRowLock(studentId) {
+      const dateStr = document.getElementById('activeDate').value;
+      const entry = getDayLogForStudent(dateStr, studentId);
+      entry.locked = !entry.locked;
+      saveLogsToStorage();
+      renderMatrixTable();
+      loadStudentIntoForm();
+    }
+
+    function toggleLockAllToday(lockState) {
+      const dateStr = document.getElementById('activeDate').value;
+      roster.forEach(s => { getDayLogForStudent(dateStr, s.id).locked = lockState; });
+      saveLogsToStorage();
+      renderMatrixTable();
+      loadStudentIntoForm();
+    }
+
+    function clearDayLogs() {
+      const dateStr = document.getElementById('activeDate').value;
+      allLogs[dateStr] = {};
+      roster.forEach(s => { allLogs[dateStr][s.id] = getEmptyEntry(); });
+      saveLogsToStorage();
+      renderAll();
+    }
+
+    function updateSummaryCards() {
+      const dateStr = document.getElementById('activeDate').value;
+      let sumHours = 0, activeCount = 0;
+      let counts = { Achiever: 0, 'Front Runner': 0, Performer: 0, Aspirant: 0 };
+
+      roster.forEach(s => {
+        const entry = getDayLogForStudent(dateStr, s.id);
+        const total = computeTotalHours(entry);
+        const tierObj = classifyStudent(entry);
+        if (total > 0) activeCount++;
+        sumHours += total;
+        if (counts[tierObj.tier] !== undefined) counts[tierObj.tier]++;
+      });
+
+      document.getElementById('statAvgHours').textContent = `${roster.length ? (sumHours / roster.length).toFixed(1) : '0.0'}h`;
+      document.getElementById('statLoggedCount').textContent = `${activeCount} of ${roster.length} logged activity`;
+      document.getElementById('countAchiever').textContent = counts['Achiever'];
+      document.getElementById('countFrontRunner').textContent = counts['Front Runner'];
+      document.getElementById('countPerformer').textContent = counts['Performer'];
+      document.getElementById('countAspirant').textContent = counts['Aspirant'];
+    }
+
+    function populateStudentDropdown() {
+      const select = document.getElementById('studentSelectDropdown');
+      select.innerHTML = '';
+      roster.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.id} — ${s.name} (${s.optional})`;
+        select.appendChild(opt);
+      });
+    }
+
+    function onStudentMobileChange() {
+      document.getElementById('studentPinInput').value = '';
+      lockStudentForm();
+      loadStudentIntoForm();
+    }
+
+    function verifyStudentPinLive() {
+      const studentId = document.getElementById('studentSelectDropdown').value;
+      const studentObj = roster.find(s => s.id === studentId);
+      const enteredPin = document.getElementById('studentPinInput').value.trim();
+      const statusText = document.getElementById('pinStatusText');
+
+      if (enteredPin === studentObj.pin) {
+        statusText.innerHTML = `<span class="text-emerald-300 font-bold">✅ PIN Verified. You can now edit your hours below.</span>`;
+        unlockStudentForm();
+      } else {
+        statusText.innerHTML = `🔒 Enter 4-digit PIN for <b>${studentObj.name}</b>`;
+        lockStudentForm();
+      }
+    }
+
+    function lockStudentForm() {
+      const fieldset = document.getElementById('studentFormFieldset');
+      fieldset.classList.add('opacity-50', 'pointer-events-none');
+    }
+
+    function unlockStudentForm() {
+      const fieldset = document.getElementById('studentFormFieldset');
+      fieldset.classList.remove('opacity-50', 'pointer-events-none');
+    }
+
+    function loadStudentIntoForm() {
+      const dateStr = document.getElementById('activeDate').value;
+      document.getElementById('studentViewDateBadge').textContent = `Date: ${dateStr}`;
+
+      const studentId = document.getElementById('studentSelectDropdown').value || roster[0].id;
+      const studentObj = roster.find(s => s.id === studentId) || roster[0];
+      const entry = getDayLogForStudent(dateStr, studentId);
+
+      document.getElementById('formStudentOptName').textContent = studentObj.optional;
+      document.getElementById('formStatus').value = entry.status || 'Present';
+      document.getElementById('formGS').value = entry.gs;
+      document.getElementById('formOpt').value = entry.opt;
+      document.getElementById('formMainsHrs').value = entry.mainsHrs;
+      document.getElementById('formMainsQs').value = entry.mainsQs;
+      document.getElementById('formPrelimsHrs').value = entry.prelimsHrs;
+      document.getElementById('formPrelimsMCQs').value = entry.prelimsMCQs;
+      document.getElementById('formCSAT').value = entry.csat;
+      document.getElementById('formRemarks').value = entry.remarks || '';
+
+      const lockBanner = document.getElementById('studentLockedBanner');
+      if (entry.locked) {
+        lockBanner.classList.remove('hidden');
+        lockStudentForm();
+      } else {
+        lockBanner.classList.add('hidden');
+      }
+
+      updateStudentFormProgress(entry);
+    }
+
+    function stepFormValue(fieldKey, delta) {
+      const map = { gs: 'formGS', opt: 'formOpt', mainsHrs: 'formMainsHrs', prelimsHrs: 'formPrelimsHrs', csat: 'formCSAT' };
+      const input = document.getElementById(map[fieldKey]);
+      input.value = Math.max(0, +((parseFloat(input.value) || 0) + delta).toFixed(1));
+      updateStudentFormPreviewOnly();
+    }
+
+    function updateStudentFormPreviewOnly() {
+      updateStudentFormProgress({
+        status: document.getElementById('formStatus').value,
+        gs: Math.max(0, parseFloat(document.getElementById('formGS').value) || 0),
+        opt: Math.max(0, parseFloat(document.getElementById('formOpt').value) || 0),
+        mainsHrs: Math.max(0, parseFloat(document.getElementById('formMainsHrs').value) || 0),
+        mainsQs: Math.max(0, parseInt(document.getElementById('formMainsQs').value) || 0),
+        prelimsHrs: Math.max(0, parseFloat(document.getElementById('formPrelimsHrs').value) || 0),
+        prelimsMCQs: Math.max(0, parseInt(document.getElementById('formPrelimsMCQs').value) || 0),
+        csat: Math.max(0, parseFloat(document.getElementById('formCSAT').value) || 0)
+      });
+    }
+
+    function submitStudentMobileLog() {
+      const dateStr = document.getElementById('activeDate').value;
+      const studentId = document.getElementById('studentSelectDropdown').value;
+      const studentObj = roster.find(s => s.id === studentId) || roster[0];
+      const entry = getDayLogForStudent(dateStr, studentId);
+
+      if (entry.locked) {
+        alert('This entry has been verified and locked by your Mentor.');
+        return;
+      }
+
+      entry.status = document.getElementById('formStatus').value;
+      entry.gs = Math.max(0, parseFloat(document.getElementById('formGS').value) || 0);
+      entry.opt = Math.max(0, parseFloat(document.getElementById('formOpt').value) || 0);
+      entry.mainsHrs = Math.max(0, parseFloat(document.getElementById('formMainsHrs').value) || 0);
+      entry.mainsQs = Math.max(0, parseInt(document.getElementById('formMainsQs').value) || 0);
+      entry.prelimsHrs = Math.max(0, parseFloat(document.getElementById('formPrelimsHrs').value) || 0);
+      entry.prelimsMCQs = Math.max(0, parseInt(document.getElementById('formPrelimsMCQs').value) || 0);
+      entry.csat = Math.max(0, parseFloat(document.getElementById('formCSAT').value) || 0);
+      entry.remarks = document.getElementById('formRemarks').value;
+      entry.source = 'student';
+      entry.studentOrigTotal = computeTotalHours(entry);
+      entry.updatedAt = new Date().toTimeString().slice(0, 5);
+
+      saveLogsToStorage();
+      pushRowToGoogleSheet(dateStr, studentObj, entry);
+      renderAll();
+
+      const msgEl = document.getElementById('studentSubmitStatus');
+      msgEl.textContent = `✓ Successfully submitted your daily log for ${studentObj.name}!`;
+      msgEl.classList.remove('hidden');
+      setTimeout(() => msgEl.classList.add('hidden'), 4000);
+    }
+
+    function updateStudentFormProgress(entry) {
+      const total = computeTotalHours(entry);
+      const tierObj = classifyStudent(entry);
+
+      document.getElementById('formTotalHours').textContent = `${total.toFixed(1)} hrs`;
+      const badge = document.getElementById('formTierBadge');
+      badge.className = `px-3 py-1 rounded-full text-xs font-bold ${tierObj.badgeClass}`;
+      badge.textContent = `${tierObj.dot} ${tierObj.tier}`;
+
+      const denom = Math.max(kpiConfig.achieverMin, total, 8);
+      document.getElementById('barGS').style.width = `${(entry.gs / denom) * 100}%`;
+      document.getElementById('barOpt').style.width = `${(entry.opt / denom) * 100}%`;
+      document.getElementById('barMains').style.width = `${(entry.mainsHrs / denom) * 100}%`;
+      document.getElementById('barPrelims').style.width = `${(entry.prelimsHrs / denom) * 100}%`;
+      document.getElementById('barCSAT').style.width = `${(entry.csat / denom) * 100}%`;
+    }
+
+    // Analytics views (Accessible to All)
+    function renderAnalyticsView() {
+      const dateStr = document.getElementById('activeDate').value;
+      const statsList = [];
+      roster.forEach(s => {
+        let curr7Sum = 0, currMainsQs = 0, currPrelimsMCQs = 0;
+        for (let i = -6; i <= 0; i++) {
+          const e = getDayLogForStudent(shiftDate(dateStr, i), s.id);
+          curr7Sum += computeTotalHours(e);
+          currMainsQs += (parseInt(e.mainsQs) || 0);
+          currPrelimsMCQs += (parseInt(e.prelimsMCQs) || 0);
+        }
+        const currAvg = +(curr7Sum / 7).toFixed(1);
+        statsList.push({ student: s, currAvg, currMainsQs, currPrelimsMCQs, tierObj: classifyStudent({ status: 'Present', gs: currAvg, mainsHrs: currMainsQs > 0 ? 1 : 0, mainsQs: currMainsQs, prelimsMCQs: currPrelimsMCQs }) });
+      });
+
+      const topDelta = [...statsList].sort((a, b) => b.currAvg - a.currAvg)[0];
+      if (topDelta) {
+        document.getElementById('deltaWinnerName').textContent = `${topDelta.student.name} (${topDelta.student.optional})`;
+        document.getElementById('deltaWinnerScore').textContent = `+0.0h / day ▲`;
+        document.getElementById('deltaWinnerCurrAvg').textContent = `${topDelta.currAvg.toFixed(1)}h / day`;
+      }
+
+      const lbBody = document.getElementById('leaderboardTableBody');
+      if (lbBody) {
+        lbBody.innerHTML = '';
+        [...statsList].sort((a, b) => b.currAvg - a.currAvg).forEach((item, idx) => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-blue-50/50';
+          tr.innerHTML = `
+            <td class="py-2.5 px-3 font-mono text-xs text-slate-500">#${idx + 1}</td>
+            <td class="py-2.5 px-3"><div class="font-bold text-slate-800">${item.student.name}</div><div class="text-[11px] text-purple-700">${item.student.optional}</div></td>
+            <td class="py-2.5 px-2 text-center font-bold text-slate-900">${item.currAvg.toFixed(1)}h</td>
+            <td class="py-2.5 px-2 text-center text-xs"><span class="text-slate-400">0.0h</span></td>
+            <td class="py-2.5 px-2 text-center font-medium text-teal-800">${item.currMainsQs} Qs</td>
+            <td class="py-2.5 px-2 text-center font-medium text-cyan-800">${item.currPrelimsMCQs}</td>
+            <td class="py-2.5 px-3 text-center"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${item.tierObj.badgeClass}">${item.tierObj.dot} ${item.tierObj.tier}</span></td>
+          `;
+          lbBody.appendChild(tr);
+        });
+      }
+    }
+
+    function openSyncModal() {
+      if (!isMentorAdmin) {
+        promptMentorAccess();
+        if (!isMentorAdmin) return;
+      }
+      document.getElementById('googleSheetUrlInput').value = syncConfig.googleSheetUrl || '';
+      document.getElementById('syncModal').classList.remove('hidden');
+      document.getElementById('syncModal').classList.add('flex');
+    }
+
+    function closeSyncModal() {
+      document.getElementById('syncModal').classList.add('hidden');
+      document.getElementById('syncModal').classList.remove('flex');
+    }
+
+    async function saveSyncConfig() {
+      syncConfig.googleSheetUrl = document.getElementById('googleSheetUrlInput').value.trim();
+      localStorage.setItem(STORAGE_KEY_SYNC, JSON.stringify(syncConfig));
+      if (syncConfig.googleSheetUrl) {
+        const dateStr = document.getElementById('activeDate').value;
+        await pushRowToGoogleSheet(dateStr, roster[0], getDayLogForStudent(dateStr, roster[0].id));
+      }
+      closeSyncModal();
+    }
+
+    function copyStudentMagicLink() {
+      const sheetUrl = document.getElementById('googleSheetUrlInput').value.trim() || syncConfig.googleSheetUrl;
+      const baseUrl = window.location.origin + window.location.pathname;
+      const magicUrl = sheetUrl ? `${baseUrl}?sheet=${encodeURIComponent(sheetUrl)}` : baseUrl;
+      navigator.clipboard.writeText(magicUrl);
+      const toast = document.getElementById('magicLinkToast');
+      toast.textContent = `✓ Copied Student Link! Share this on WhatsApp with your students.`;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 5000);
+    }
+
+    async function pushRowToGoogleSheet(dateStr, studentObj, entry) {
+      if (!syncConfig.googleSheetUrl) return;
+      const payload = {
+        date: dateStr, id: studentObj.id, name: studentObj.name, optional: studentObj.optional,
+        status: entry.status, gs: entry.gs, opt: entry.opt, mainsHrs: entry.mainsHrs, mainsQs: entry.mainsQs,
+        prelimsHrs: entry.prelimsHrs, prelimsMCQs: entry.prelimsMCQs, csat: entry.csat,
+        total: computeTotalHours(entry), source: entry.source, locked: entry.locked, remarks: entry.remarks || '',
+        fullStateJson: JSON.stringify({ roster, allLogs, updatedAt: Date.now() })
+      };
+      try {
+        await fetch(syncConfig.googleSheetUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
+      } catch (err) {}
+    }
+
+    async function manualSyncFromCloud(silent = false) {
+      if (!syncConfig.googleSheetUrl) return;
+      try {
+        const res = await fetch(syncConfig.googleSheetUrl, { method: 'GET', redirect: 'follow' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.allLogs && Object.keys(data.allLogs).length > 0) {
+          allLogs = data.allLogs;
+          if (data.roster) roster = data.roster;
+          localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(allLogs));
+          renderAll();
+        }
+      } catch (err) {}
+    }
+
+    function switchMode(mode) {
+      if (mode === 'matrix' && !isMentorAdmin) {
+        promptMentorAccess();
+        if (!isMentorAdmin) return;
+      }
+      document.getElementById('studentView').classList.add('hidden');
+      document.getElementById('matrixView').classList.add('hidden');
+      document.getElementById('analyticsView').classList.add('hidden');
+
+      // Update tab styles
+      document.getElementById('tabStudentBtn').className = 'px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer';
+      document.getElementById('tabAnalyticsBtn').className = 'px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer';
+      const mBtn = document.getElementById('tabMatrixBtn');
+      if (mBtn) mBtn.className = 'px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer';
+
+      if (mode === 'student') {
+        document.getElementById('studentView').classList.remove('hidden');
+        document.getElementById('tabStudentBtn').className = 'px-4 py-2 rounded-md text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer';
+        loadStudentIntoForm();
+      } else if (mode === 'analytics') {
+        document.getElementById('analyticsView').classList.remove('hidden');
+        document.getElementById('tabAnalyticsBtn').className = 'px-4 py-2 rounded-md text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer';
+        renderAnalyticsView();
+      } else if (mode === 'matrix' && isMentorAdmin) {
+        document.getElementById('matrixView').classList.remove('hidden');
+        if (mBtn) mBtn.className = 'px-4 py-2 rounded-md text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-sm transition cursor-pointer';
+        renderMatrixTable();
+      }
+    }
+
+    function openRosterModal() {
+      const container = document.getElementById('rosterInputsContainer');
+      container.innerHTML = '';
+      roster.forEach((s, index) => {
+        const row = document.createElement('div');
+        row.className = 'grid grid-cols-12 gap-2 items-center bg-slate-50 p-2 rounded-lg border border-slate-200';
+        row.innerHTML = `
+          <div class="col-span-2"><input type="text" id="rosterId_${index}" value="${s.id}" class="w-full text-xs font-mono border border-slate-300 rounded px-2 py-1.5 bg-white" readonly /></div>
+          <div class="col-span-4"><input type="text" id="rosterName_${index}" value="${s.name}" class="w-full text-sm font-semibold border border-slate-300 rounded px-2.5 py-1.5 bg-white" placeholder="Student Name" /></div>
+          <div class="col-span-3"><input type="text" id="rosterOpt_${index}" value="${s.optional}" class="w-full text-xs border border-slate-300 rounded px-2 py-1.5 bg-white" placeholder="Optional" /></div>
+          <div class="col-span-3"><input type="text" id="rosterPin_${index}" value="${s.pin}" maxlength="6" class="w-full text-xs font-mono font-bold text-center border border-emerald-400 rounded px-2 py-1.5 bg-emerald-50/40" /></div>
+        `;
+        container.appendChild(row);
+      });
+      document.getElementById('rosterModal').classList.remove('hidden');
+      document.getElementById('rosterModal').classList.add('flex');
+    }
+
+    function closeRosterModal() {
+      document.getElementById('rosterModal').classList.add('hidden');
+      document.getElementById('rosterModal').classList.remove('flex');
+    }
+
+    function saveRosterChanges() {
+      roster.forEach((s, index) => {
+        s.name = document.getElementById(`rosterName_${index}`).value.trim() || s.name;
+        s.optional = document.getElementById(`rosterOpt_${index}`).value.trim() || s.optional;
+        s.pin = document.getElementById(`rosterPin_${index}`).value.trim() || s.pin;
+      });
+      localStorage.setItem(STORAGE_KEY_ROSTER, JSON.stringify(roster));
+      populateStudentDropdown();
+      saveLogsToStorage();
+      renderAll();
+      closeRosterModal();
+    }
+
+    function exportCSV() {
+      if (!isMentorAdmin) {
+        promptMentorAccess();
+        if (!isMentorAdmin) return;
+      }
+      const dateStr = document.getElementById('activeDate').value;
+      const rows = [['Date', 'Roll_ID', 'Student_Name', 'Optional', 'Status', 'GS_Hrs', 'Optional_Hrs', 'Mains_Hrs', 'Mains_Qs', 'Prelims_Hrs', 'Prelims_MCQs', 'CSAT_Hrs', 'Total_Hrs', 'Remarks']];
+      roster.forEach(s => {
+        const e = getDayLogForStudent(dateStr, s.id);
+        rows.push([dateStr, s.id, `"${s.name}"`, `"${s.optional}"`, e.status, e.gs, e.opt, e.mainsHrs, e.mainsQs, e.prelimsHrs, e.prelimsMCQs, e.csat, computeTotalHours(e), `"${(e.remarks || '').replace(/"/g, '""')}"`]);
+      });
+      const newlineChar = String.fromCharCode(10);
+      const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(r => r.join(',')).join(newlineChar);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodeURI(csvContent));
+      link.setAttribute('download', `MANUU_CSE_StudyLog_${dateStr}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>
 </html>
