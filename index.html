@@ -514,13 +514,13 @@
 
   </main>
 
-  <!-- MODAL 1: EDIT 15-STUDENT ROSTER & EDITABLE NAMES & PINS -->
+  <!-- MODAL 1: EDIT 15-STUDENT ROSTER -->
   <div id="rosterModal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden">
       <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
         <div>
-          <h3 class="font-bold text-base">Edit 15-Student Roster (Editable Names, Optionals & PINs)</h3>
-          <p class="text-xs text-slate-400">Anyone can edit names here, or protect with Mentor PIN.</p>
+          <h3 class="font-bold text-base">Edit 15-Student Roster (Mentor Protected)</h3>
+          <p class="text-xs text-slate-400">Requires Mentor PIN to modify names and PINs.</p>
         </div>
         <button type="button" onclick="closeRosterModal()" class="text-slate-400 hover:text-white text-xl font-bold cursor-pointer">&times;</button>
       </div>
@@ -587,9 +587,9 @@
   </div>
 
   <script>
-    const STORAGE_KEY_ROSTER = 'manuu_cse_roster_v15_v1';
-    const STORAGE_KEY_LOGS   = 'manuu_cse_logs_v15_v1';
-    const STORAGE_KEY_SYNC   = 'manuu_cse_sync_v15_v1';
+    const STORAGE_KEY_ROSTER = 'manuu_cse_roster_v15_v2';
+    const STORAGE_KEY_LOGS   = 'manuu_cse_logs_v15_v2';
+    const STORAGE_KEY_SYNC   = 'manuu_cse_sync_v15_v2';
 
     const PREBAKED_SHEET_URL = '';
 
@@ -1074,7 +1074,9 @@
         lbBody.innerHTML = '';
         [...statsList].sort((a, b) => b.currAvg - a.currAvg).forEach((item, idx) => {
           const tr = document.createElement('tr');
-          tr.className = 'hover:bg-blue-50/50';
+          tr.id = `leaderboardRow_${item.student.id}`;
+          tr.className = `hover:bg-blue-50/50 cursor-pointer transition ${item.student.id === inspectedStudentId ? 'bg-blue-50/80 font-semibold' : ''}`;
+          tr.onclick = () => inspectStudent(item.student.id, true);
           tr.innerHTML = `
             <td class="py-2.5 px-3 font-mono text-xs text-slate-500">#${idx + 1}</td>
             <td class="py-2.5 px-3"><div class="font-bold text-slate-800">${item.student.name}</div><div class="text-[11px] text-purple-700">${item.student.optional}</div></td>
@@ -1086,6 +1088,66 @@
           `;
           lbBody.appendChild(tr);
         });
+      }
+
+      inspectStudent(inspectedStudentId, false);
+    }
+
+    function inspectStudent(studentId, updateHighlight = true) {
+      inspectedStudentId = studentId;
+      if (updateHighlight) {
+        roster.forEach(s => {
+          const r = document.getElementById(`leaderboardRow_${s.id}`);
+          if (r) {
+            if (s.id === studentId) r.className = 'hover:bg-blue-50/50 cursor-pointer transition bg-blue-50/80 font-semibold';
+            else r.className = 'hover:bg-blue-50/50 cursor-pointer transition';
+          }
+        });
+      }
+
+      const dateStr = document.getElementById('activeDate').value;
+      const student = roster.find(s => s.id === studentId) || roster[0];
+      const nameEl = document.getElementById('inspectStudentName');
+      if (nameEl) nameEl.textContent = `${student.name} (${student.optional})`;
+
+      const barsEl = document.getElementById('inspectorBars');
+      if (!barsEl) return;
+      barsEl.innerHTML = '';
+
+      let sumGS = 0, sumOpt = 0, sumMains = 0, sumPrelims = 0, sumCSAT = 0, sumMainsQs = 0, sumPrelMCQs = 0;
+
+      for (let i = -6; i <= 0; i++) {
+        const d = shiftDate(dateStr, i);
+        const e = getDayLogForStudent(d, student.id);
+        const tot = computeTotalHours(e);
+        sumGS += e.gs; sumOpt += e.opt; sumMains += e.mainsHrs; sumPrelims += e.prelimsHrs; sumCSAT += e.csat;
+        sumMainsQs += (parseInt(e.mainsQs) || 0); sumPrelMCQs += (parseInt(e.prelimsMCQs) || 0);
+
+        const heightPct = Math.min(100, Math.round((tot / 12) * 100));
+        const col = document.createElement('div');
+        col.className = 'flex-1 flex flex-col items-center justify-end h-full';
+        col.innerHTML = `<div class="text-[10px] font-bold text-slate-600 mb-1">${tot.toFixed(1)}</div><div class="w-full rounded-t-md ${tot >= kpiConfig.frontRunnerMin ? 'bg-emerald-500' : (tot >= kpiConfig.performerMin ? 'bg-amber-400' : 'bg-rose-400')}" style="height:${Math.max(8, heightPct)}%"></div><div class="text-[10px] text-slate-400 mt-1 font-mono">${d.slice(8)}</div>`;
+        barsEl.appendChild(col);
+      }
+
+      const grandTotal = +(sumGS + sumOpt + sumMains + sumPrelims + sumCSAT).toFixed(1) || 1;
+      const avg7 = +(grandTotal / 7).toFixed(1);
+      const tierObj = classifyStudent({ status: 'Present', gs: avg7, mainsHrs: sumMainsQs > 0 ? 1 : 0, mainsQs: sumMainsQs, prelimsMCQs: sumPrelMCQs });
+      const tierBadge = document.getElementById('inspectStudentTier');
+      if (tierBadge) {
+        tierBadge.className = `text-xs font-bold px-2.5 py-1 rounded-full ${tierObj.badgeClass}`;
+        tierBadge.textContent = `${tierObj.dot} ${tierObj.tier} (${avg7}h/d)`;
+      }
+
+      const splitEl = document.getElementById('inspectorSubjectSplit');
+      if (splitEl) {
+        splitEl.innerHTML = `
+          <div class="flex justify-between"><span>GS Total (7d):</span><b>${sumGS.toFixed(1)}h (${Math.round(sumGS/grandTotal*100)}%)</b></div>
+          <div class="flex justify-between"><span>Optional (${student.optional}):</span><b>${sumOpt.toFixed(1)}h (${Math.round(sumOpt/grandTotal*100)}%)</b></div>
+          <div class="flex justify-between"><span>Mains Test (${sumMainsQs} Qs):</span><b>${sumMains.toFixed(1)}h</b></div>
+          <div class="flex justify-between"><span>Prelims Test (${sumPrelMCQs} MCQs):</span><b>${sumPrelims.toFixed(1)}h</b></div>
+          <div class="flex justify-between"><span>CSAT Total (7d):</span><b>${sumCSAT.toFixed(1)}h</b></div>
+        `;
       }
     }
 
@@ -1185,6 +1247,10 @@
     }
 
     function openRosterModal() {
+      if (!isMentorAdmin) {
+        promptMentorAccess();
+        if (!isMentorAdmin) return;
+      }
       const container = document.getElementById('rosterInputsContainer');
       container.innerHTML = '';
       roster.forEach((s, index) => {
