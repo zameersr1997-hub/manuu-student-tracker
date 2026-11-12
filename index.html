@@ -594,16 +594,16 @@
     const PREBAKED_SHEET_URL = '';
 
     const defaultRoster15 = [
-      { id: 'M01', name: 'SHALOM KALYAN',     optional: 'PSIR',         pin: '2365' },
-      { id: 'M02', name: 'SANIYA FAREED',     optional: 'PSIR',    pin: '2657' },
-      { id: 'M03', name: 'NAZISH ALI',     optional: 'PSIR',      pin: '1003' },
-      { id: 'M04', name: 'NAUSHEEN ARZO',     optional: 'PSIR',         pin: '7863' },
-      { id: 'M05', name: 'HAFIZA JAMAL',     optional: 'PSIR',     pin: '5647' },
-      { id: 'M06', name: 'NAWAZ',     optional: 'PSIR', pin: '7523' },
-      { id: 'M07', name: 'MUJAHID',     optional: 'PSIR',    pin: '1456' },
-      { id: 'M08', name: 'TIRUPATI',     optional: 'PSIR',         pin: '3547' },
-      { id: 'M09', name: 'FAYAZ',     optional: 'PSIR', pin: '8136' },
-      { id: 'M10', name: 'SHAHID ANSARI',    optional: 'PSIR',     pin: '6581' },
+      { id: 'M01', name: 'Student 1',     optional: 'PSIR',         pin: '1001' },
+      { id: 'M02', name: 'Student 2',     optional: 'Sociology',    pin: '1002' },
+      { id: 'M03', name: 'Student 3',     optional: 'History',      pin: '1003' },
+      { id: 'M04', name: 'Student 4',     optional: 'PSIR',         pin: '1004' },
+      { id: 'M05', name: 'Student 5',     optional: 'Urdu Lit',     pin: '1005' },
+      { id: 'M06', name: 'Student 6',     optional: 'Anthropology', pin: '1006' },
+      { id: 'M07', name: 'Student 7',     optional: 'Geography',    pin: '1007' },
+      { id: 'M08', name: 'Student 8',     optional: 'PSIR',         pin: '1008' },
+      { id: 'M09', name: 'Student 9',     optional: 'Public Admin', pin: '1009' },
+      { id: 'M10', name: 'Student 10',    optional: 'Urdu Lit',     pin: '1010' },
       { id: 'M11', name: 'Student 11',    optional: 'Political Sci',pin: '1011' },
       { id: 'M12', name: 'Student 12',    optional: 'Economics',    pin: '1012' },
       { id: 'M13', name: 'Student 13',    optional: 'Philosophy',   pin: '1013' },
@@ -672,7 +672,6 @@
         document.getElementById('mentorPinBtn').textContent = '🛡️ Mentor Active';
         document.getElementById('mentorPinBtn').className = 'bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm';
         
-        // Show Mentor Matrix tab
         document.getElementById('tabMatrixBtn').classList.remove('hidden');
         switchMode('matrix');
       } else if (pass !== null) {
@@ -707,7 +706,6 @@
         const dStr = shiftDate(todayStr, offset);
         allLogs[dStr] = {};
         roster.forEach(s => {
-          const isToday = offset === 0;
           allLogs[dStr][s.id] = {
             status: 'Present',
             gs: 3.5,
